@@ -1,0 +1,200 @@
+library('base')
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'releaser'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: releaser
+spec:
+  containers:
+    - name: releaser
+      image: golang:1.8
+      tty: true
+      command:
+        - cat
+      """
+    }
+  }
+
+  post {
+      always {
+          handleAlert()
+      }
+  }
+
+
+  parameters {
+    booleanParam(
+      name: 'FORCE',
+      defaultValue: false,
+      description: 'Force the creation of a new tag, even though the commit threshold was not reached yet.'
+    )
+    string(
+      name: 'COMMIT_THRESHOLD',
+      defaultValue: '4',
+      description: 'The number of relevant commits after the latest tag required to trigger the creation of a new tag.'
+    )
+  }
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+
+    environment {
+        JIRA_TOKEN = credentials('ClarkJira')
+        JIRA_BASE_URL='https://clarkteam.atlassian.net'
+        JIRA_PROJECT = 'JCLARK'
+        ALLOWED_BRANCH_NAME = 'master'
+    }
+
+  stages {
+    stage('checkout') {
+      steps {
+        git branch: 'master', url: 'git@github.com:ClarkSource/application', credentialsId: 'github-ssh'
+
+        sh "git config --global user.email cloudops+jenkins@clark.de"
+        sh "git config --global user.name ClarkJenkins"
+        sh "mkdir ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts"
+      }
+    }
+
+    stage('build the dependencies') {
+      steps {
+        script {
+            container('releaser') {
+                def latestTag = sh(script: "git describe --abbrev=0", returnStdout: true).trim()
+                def totalCommits = total_commits(latestTag)
+                def excludedCommits = excluded_commits(latestTag)
+                def relevantCommits = totalCommits - excludedCommits
+                def commitThreshold = params.COMMIT_THRESHOLD as int
+                def hasForceTagCommit = force_tag_commits(latestTag) > 0
+
+                echo "Last tag: ${latestTag}"
+                echo "Relevant commits since last tag: ${relevantCommits}"
+                echo "Excluded commits since last tag: ${excludedCommits}"
+                echo "Commit count threshold: ${commitThreshold}"
+                echo "Has `[force tag]` commit: ${hasForceTagCommit}"
+
+                assert params.FORCE || commitThreshold > 0 : "COMMIT_THRESHOLD must be greater than 0"
+
+                def version_file_path = "./config/initializers/version.rb"
+                def version_file_data = readFile(version_file_path).split("\n")
+                def current_version = get_current_version(version_file_data)
+                def github_version = get_new_version(current_version)
+                def jira_version = get_new_version(github_version)
+
+                try {
+                  get_ticket_ids(current_version).each {
+                    assign_version(it, github_version)
+                  }
+                } catch (Exception error) {
+                  echo "Failed to update ticket(s) with version."
+                  error.printStackTrace()
+                }
+
+                if (params.FORCE || hasForceTagCommit || relevantCommits >= commitThreshold) {
+                    //version file need to be pushed first to avoid any issue regarding another push during the job is running
+                    // so it won't push the tag unless the file is pushed
+                    update_version_file(version_file_path, version_file_data, github_version)
+
+                    sshagent (credentials: ['github-ssh']) {
+                        sh "git add ${version_file_path}"
+                        sh "git commit -m 'Bumped Version to ${github_version}'"
+                        sh "git push origin '${env.ALLOWED_BRANCH_NAME}'"
+
+                        sh "git tag -a '${github_version}' -m 'Release Version ${github_version}'"
+                        sh "git push --follow-tags origin '${env.ALLOWED_BRANCH_NAME}'"
+                    }
+
+                    create_jira_release(jira_version)
+                }
+
+            }
+        }
+      }
+    }
+  }
+}
+
+def total_commits(latestTag){
+  sh(
+    script: "git rev-list --count ${latestTag}..HEAD",
+    returnStdout: true
+  ).toInteger()
+}
+
+def excluded_commits(latestTag){
+  sh(
+    script: "git rev-list --author='dependabot' --count ${latestTag}..HEAD",
+    returnStdout: true
+  ).toInteger()
+}
+
+def force_tag_commits(latestTag){
+  sh(
+    script: "git rev-list --grep='\\[force[ -]\\?tag\\]' --regexp-ignore-case --count ${latestTag}..HEAD",
+    returnStdout: true
+  ).toInteger()
+}
+
+def get_ticket_ids(latestTag) {
+  message = sh(
+    script: "git rev-list --format=%B ${latestTag}..HEAD",
+    returnStdout: true
+  )
+
+  ticketIds = (message =~ /${JIRA_PROJECT}-\d+/).findAll()
+
+  return ticketIds
+}
+
+def assign_version(ticektId, version) {
+  jiraEditIssue idOrKey: ticektId, issue: [
+    update: [
+      fixVersions: [
+        [add: [name: version]]
+      ]
+    ]
+  ]
+}
+
+def create_jira_release(jira_version){
+    jiraNewVersion(version: [
+        name: jira_version,
+        archived: false,
+        released: false,
+        project: env.JIRA_PROJECT,
+    ])
+}
+
+def update_version_file(version_file_path, version_file_data, new_version){
+  for (idx = 0; idx < version_file_data.size(); idx++){
+    if(version_file_data[idx].toString().contains("VERSION")){
+      version_file_data[idx] = "VERSION = \"${new_version}\"".toString()
+      break
+    }
+  }
+  writeFile(file: version_file_path, text: version_file_data.join('\n'))
+}
+
+def get_new_version(current_version){
+  def current_version_array = current_version.split('\\.')
+  def new_version_major = current_version_array[0]
+  def new_version_minor = current_version_array[1].toInteger() + 1
+  "${new_version_major}.${new_version_minor}"
+}
+
+def get_current_version(version_file_data){
+  version_file_data.any{ element ->
+    if(element.toString().contains("VERSION")){
+      res = (element.split('=')[-1] =~ /[0-9]+\.[0-9]*/)[0]
+      return true
+    }
+  }
+  return res
+}

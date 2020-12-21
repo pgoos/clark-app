@@ -1,0 +1,75 @@
+# https://dependabot.com/docs/config-file/
+# https://dependabot.com/docs/config-file/validator/
+
+version: 1
+update_configs:
+  - package_manager: javascript
+    directory: /
+    update_schedule: live
+    default_reviewers:
+      - buschtoens # Jan Buschtöns
+      - kennethlarsen # Kenneth Larsen
+    default_labels:
+      - dependencies
+      - dependencies-js
+      - dependabot
+    version_requirement_updates: increase_versions
+    commit_message: # Do not remove this setting. See `.github/mergeable.yml`
+      prefix: chore
+      include_scope: true
+    automerged_updates:
+      - match:
+          dependency_type: all
+          update_type: semver:minor
+  - package_manager: ruby:bundler
+    directory: /
+    update_schedule: live
+    default_reviewers:
+      - mtrense # Max Trense
+      - paschelino # Pascal Erb
+      - ahmed-yousry-ebrahim # Ahmed Yousry Ebrahim
+      - mpq1990 # Majid Qureshi
+      - coder-chris # Chris Rowe
+    default_labels:
+      - dependencies
+      - dependencies-ruby
+      - dependabot
+    version_requirement_updates: increase_versions
+    commit_message: # Do not remove this setting. See `.github/mergeable.yml`
+      prefix: chore
+      include_scope: true
+    automerged_updates:
+      - match:
+          dependency_type: all
+          update_type: semver:minor
+    ignored_updates:
+      - match:
+          # This dependency is not CI'ed for pull requests. It is only used /
+          # tested during the Cucumber tests, which only run for tags.
+          # To prevent Dependabot from breaking the Cucumber tests, we disable
+          # automatic updated entirely .
+          # https://clarkteam.atlassian.net/browse/JCLARK-54511
+          dependency_name: selenium-webdriver
+      - match:
+          # This dependency is not CI'ed for pull requests. It is only used /
+          # tested during the Cucumber tests, which only run for tags.
+          # To prevent Dependabot from breaking the Cucumber tests, we disable
+          # automatic updated entirely .
+          dependency_name: parallel_tests
+      - match:
+          # This dependency tries to upgrade aws-sdk-kms-1.34.0. This is not
+          # available in ruby-gems yet, which breaks bundle process.
+          # ticket -> JCLARK-60867
+          # Github issue -> https://github.com/aws/aws-sdk-ruby/issues/2330
+          dependency_name: aws-sdk-s3
+      - match:
+          # This dependency tries to upgrade aws-sdk-kms-1.34.0. This is not
+          # available in ruby-gems yet, which breaks bundle process.
+          # ticket -> JCLARK-60867
+          # Github issue -> https://github.com/aws/aws-sdk-ruby/issues/2330
+          dependency_name: aws-sdk-sns
+      - match:
+          # This dependency tries to upgrade haml-5.2.1. This upgrade has
+          # some new syntax which breaks our existing templates
+          # ticket -> JCLARK-68455
+          dependency_name: haml

@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "name": "Partner.erstelleDokument",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "PartnerID": {"$ref": "#/definitions/Plattform_ID"},
+        "Dokument": {"$ref": "#/definitions/Person/CT_Transfer"}
+      },
+      "required": [
+        "PartnerID",
+        "Dokument"
+      ]
+    },
+    {
+      "minItems": 2,
+      "maxItems": 2,
+      "type": "array",
+      "items": [
+        {"$ref": "#/definitions/Plattform_ID"},
+        {"$ref": "#/definitions/Person/CT_Transfer"}
+      ]
+    }
+  ],
+  "definitions": {
+    "ST_Komprimierungstyp": {
+      "description": "Komprimierungstyp gemäß BiPRO (ST_Komprimierungstyp). Es gibt keine Entsprechung in der GDV. Beschreibung der Werte: 'ZIP=ZIP-Komprimierung', 'KEINE=Keine Komprimierung'.",
+      "type": "string",
+      "title": "bipro:ST_Komprimierungstyp",
+      "enum": [
+        "GZIP",
+        "KEINE"
+      ]
+    },
+    "CT_Pruefsumme": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Pruefsumme",
+      "properties": {
+        "Wert": {"$ref": "#/definitions/Plattform_Pruefsumme"},
+        "Typ": {"$ref": "#/definitions/ST_Pruefsummetyp"}
+      },
+      "required": [
+        "Typ",
+        "Wert"
+      ]
+    },
+    "ST_Pruefsummetyp": {
+      "description": "Prüfsummetyp gemäß BiPRO (ST_Puefsummetyp). Es gibt keine Entsprechung in der GDV. Beschreibung der Werte: 'MD5=Message-Digest 5 Algorithmus', 'SHA1=Secure Hash Algorithm'.",
+      "type": "string",
+      "title": "bipro:ST_Pruefsummetyp",
+      "enum": [
+        "MD5",
+        "SHA1"
+      ]
+    },
+    "Plattform_Dateiformat": {
+      "description": "Dateiformat gemäß Versicherungsplattform. Bewusste Abweichung von BiPRO ST_Dateiformat. Beschreibung der Werte: 'BMP=BitMap Picture', 'CSV=Comma Separated Values', 'DOC=Microsoft Word Document', 'DOCX=Office Open XML Text Document', 'GIF=Graphics Interchange Format', 'JPG=Joint Photographic Group Graphics File Format', 'MSG=Message Text File', 'PDF=Portable Document Format', 'PNG=Portable Network Graphics', 'PPT=Microsoft PowerPoint Presentation', 'PPTX=Office Open XML Presentation', 'RTF=Rich Text Format', 'TIFF=Tagged Image Format File', 'TXT=Text File', 'XLS=Microsoft Excel Spreadsheet', 'XLSX=Office Open XML Workbook', 'XML=Extensible Markup Language'.",
+      "type": "string",
+      "title": "plattform:Plattform_Dateiformat",
+      "enum": [
+        "BMP",
+        "CSV",
+        "DOC",
+        "DOCX",
+        "GIF",
+        "JPG",
+        "MSG",
+        "PDF",
+        "PNG",
+        "PPT",
+        "PPTX",
+        "RTF",
+        "TIFF",
+        "TXT",
+        "XLS",
+        "XLSX",
+        "XML"
+      ]
+    },
+    "Plattform_Pruefsumme": {
+      "pattern": "^([0-9a-f]{32}|[0-9a-f]{40})$",
+      "description": "Bewusste Abweichung von CT_Pruefsumme. Es gibt keine Entsprechung in der GDV. CT_Pruefsumme ist vom Typ Integer. Abbildung von Hexadezimal-Werten in Json mit String",
+      "type": "string",
+      "title": "bipro:Plattform_Pruefsumme"
+    },
+    "Plattform_ID": {
+      "maximum": 9223372036854775807,
+      "description": "Fachobjekt-ID gemäß Versicherungsplattform. Alle Fachobjekte der Versicherungsplattform werden mit einem numerischen Wert innerhalb dieses Wertebereichs eindeutig identifiziert. Bewusste Abweichung vom BiPRO-Standard (ST_ID), da die Versicherungsplattform ausschließlich mit numerischen IDs arbeitet.",
+      "type": "integer",
+      "title": "plattform:Plattform_ID",
+      "minimum": 0
+    },
+    "Person": {
+      "Plattform_PersonSachgebiet": {
+        "description": "Sachgebiet gemäß Versicherungsplattform. Bewusste Abweichung von BiPRO (ST_DokumentartID). Entspricht dem Feld 'Dokumenttyp' in der GDV.",
+        "type": "string",
+        "title": "plattform:Plattform_PersonSachgebiet",
+        "enum": [
+          "Maklerauftrag",
+          "Sonstiges"
+        ]
+      },
+      "CT_Transfer": {
+        "additionalProperties": false,
+        "type": "object",
+        "title": "bipro:CT_Transfer",
+        "properties": {
+          "Dokumenteninformationen": {"$ref": "#/definitions/Person/CT_Dokumenteninformationen"},
+          "Datei": {"$ref": "#/definitions/CT_Datei"}
+        },
+        "required": [
+          "Datei",
+          "Dokumenteninformationen"
+        ]
+      },
+      "CT_Dokumenteninformationen": {
+        "additionalProperties": false,
+        "type": "object",
+        "title": "bipro:CT_Dokumenteninformationen",
+        "properties": {
+          "Sachgebiet": {"$ref": "#/definitions/Person/Plattform_PersonSachgebiet"},
+          "Bezeichnung": {
+            "minLength": 0,
+            "description": "Bezeichnung gemäß BiPRO. Es gibt keine Entsprechung in der GDV.",
+            "type": "string",
+            "title": "bipro:ST_Text255",
+            "maxLength": 255
+          }
+        },
+        "required": ["Sachgebiet"]
+      }
+    },
+    "CT_Datei": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Datei",
+      "properties": {
+        "Dateiformat": {"$ref": "#/definitions/Plattform_Dateiformat"},
+        "Pruefsumme": {"$ref": "#/definitions/CT_Pruefsumme"},
+        "Daten": {
+          "description": "Daten gemäß BiPRO. Base64 codierter String",
+          "media": {"binaryEncoding": "base64"},
+          "type": "string",
+          "title": "mime:base64Binary"
+        },
+        "Komprimierungstyp": {"$ref": "#/definitions/ST_Komprimierungstyp"}
+      },
+      "required": [
+        "Daten",
+        "Dateiformat",
+        "Komprimierungstyp",
+        "Pruefsumme"
+      ]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+mandate_id;salutation;first name;last name;;zip;city;;;date_of_birth;axa_Orga_fixed;mandate_document_name;signed_mandate_date;;;;;;;;;;;;;;;;;;;;
+Makler-FS;Anrede;Vorname;Nachname;Straße;PLZ;Ort;Telefon Vorwahl;Telefon Nummer;Geburtsdatum;HauptZielOrgaNr;Dateiname Mandat;Datum des Mandats;VSNR1;OrgaNr1;VSNR2;OrgaNr2;VSNR3;OrgaNr3;VSNR4;OrgaNr4;VSNR5;OrgaNr5;VSNR6;OrgaNr6;VSNR7;OrgaNr7;VSNR8;OrgaNr8;VSNR9;OrgaNr9;VSNR10;OrgaNr10
+42;Frau;Lea;Musterfrau;;12345;Musterstadt;;;01.01.1900;6036007275;kunde-lea-musterfrau.pdf;30.06.2018;;;;;;;;;;;;;;;;;;;;
+17;Herr;Max;Mustermann;;12346;Musterdorf;;;02.01.1901;6036007275;kunde-max-mustermann.pdf;23.07.2018;;;;;;;;;;;;;;;;;;;;

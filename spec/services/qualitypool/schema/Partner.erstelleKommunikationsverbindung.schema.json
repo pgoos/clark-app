@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "name": "Partner.erstelleKommunikationsverbindung",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "PartnerID": {"$ref": "#/definitions/Plattform_ID"},
+        "KommunikationsverbindungDaten": {"$ref": "#/definitions/CT_Kommunikationsverbindung"}
+      },
+      "required": [
+        "PartnerID",
+        "KommunikationsverbindungDaten"
+      ]
+    },
+    {
+      "minItems": 2,
+      "maxItems": 2,
+      "type": "array",
+      "items": [
+        {"$ref": "#/definitions/Plattform_ID"},
+        {"$ref": "#/definitions/CT_Kommunikationsverbindung"}
+      ]
+    }
+  ],
+  "definitions": {
+    "CT_Kommunikationsverbindung": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Kommunikationsadresse": {
+          "description": "Kommunikationsadresse gemäß GDV (BN-2003.02.11.22.49.56.577). GDV-Feldname ist 'Kommunikationsnummer60'. Enthält z.B. eine E-Mailadresse oder Telefonnummer (DIN 5008).",
+          "type": "string",
+          "title": "bipro:ST_Text060",
+          "maxLength": 60
+        },
+        "ArtID": {"$ref": "#/definitions/ST_Kommunikationstyp"}
+      },
+      "required": [
+        "ArtID",
+        "Kommunikationsadresse"
+      ]
+    },
+    "ST_Kommunikationstyp": {
+      "description": "ArtID gemäß GDV (BN-2003.02.11.22.49.56.427). GDV-Feldname ist 'Kommunikationstyp'. Beschreibung der Werte: '10=Telefonnummer Privat', '20=Telefonnummer Geschäftlich', '21=Telefonnummer', '30=Telefonnummer Mobil', '31=Telefonnummer Mobil Privat', '32=Telefonnummer Mobil Geschäftlich', '40=Telefax', '41=Telefax Privat', '42=Telefax Geschäftlich', '50=E-Mail', '51=E-Mail Privat', '52=E-Mail Geschäftlich', '60=Website', '61=Website Privat', '62=Website Geschäftlich'.",
+      "type": "string",
+      "title": "bipro:ST_Kommunikationstyp",
+      "enum": [
+        "10",
+        "20",
+        "21",
+        "30",
+        "31",
+        "32",
+        "40",
+        "41",
+        "42",
+        "50",
+        "51",
+        "52",
+        "60",
+        "61",
+        "62"
+      ]
+    },
+    "Plattform_ID": {
+      "maximum": 9223372036854775807,
+      "description": "Fachobjekt-ID gemäß Versicherungsplattform. Alle Fachobjekte der Versicherungsplattform werden mit einem numerischen Wert innerhalb dieses Wertebereichs eindeutig identifiziert. Bewusste Abweichung vom BiPRO-Standard (ST_ID), da die Versicherungsplattform ausschließlich mit numerischen IDs arbeitet.",
+      "type": "integer",
+      "title": "plattform:Plattform_ID",
+      "minimum": 0
+    }
+  }
+}

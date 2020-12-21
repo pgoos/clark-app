@@ -1,0 +1,54 @@
+library("base")
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yamlFile '.jenkins/ruby-reporter.yaml'
+    }
+  }
+
+  options {
+    timeout(time: 15, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages {
+    stage('Run reports') {
+      parallel {
+        stage('Run code reports') {
+          steps {
+            container('reporter') {
+              sh "ruby scripts/cyclomatic_complexity_report.rb > cyclomatic_complexity.json"
+              archiveArtifacts artifacts: "cyclomatic_complexity.json"
+
+              sh "ruby scripts/abc_report.rb > abc_report.json"
+              archiveArtifacts artifacts: "abc_report.json"
+            }
+          }
+        }
+
+        stage('Run brakeman report') {
+          post {
+            always {
+              archiveArtifacts artifacts: "brakeman_report.html"
+            }
+          }
+          steps {
+            container('reporter') {
+
+              withStatus(
+                context: "Brakeman security analysis",
+                description: "Running static analysis tool to check security",
+              ) {
+                sh "apk add make g++"
+                sh "gem install sassc brakeman"
+                sh "brakeman -o brakeman_report.html"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

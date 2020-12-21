@@ -1,0 +1,69 @@
+@javascript
+Feature: Prospect customer selects life and health category to get an appointment for offer
+  As a Prospect customer
+  I want to request an appointment for life and health category offer
+
+  @smoke
+  Scenario: Propect customer requests an appointment for life and health category offer
+    Given user is as the following
+      | first_name |
+      | Clark 2.0  |
+    When user navigates to clark 2 offer page
+    Then user is on the clark 2 select category for offer page
+
+    When user enters "Private Krankenversicherung" into search input field
+    And  user selects "Private Krankenversicherung" search result option
+    And  user is on the questionnaire page
+    And  user sees text "Pri­vate Kran­ken­ver­si­che­rung"
+    And  user sees that "Datenschutzerklärung" "de/datenschutz" link is visible
+    And  user sees that "AGB" "de/agb" link is visible
+    Then user sees that "Belehrung nach §19 Abs. 5 VVG" "de/anzeigepflicht" link is visible
+
+    # Health Consent Modal
+    When user clicks on "Verarbeitung meiner Gesundheitsdaten" link
+    And  user sees text "Einwilligung: Verarbeitung von Gesundheitsdaten"
+    And  user sees text
+    """
+    Du willigst ein, dass wir deine im Folgenden von dir angegebenen Gesundheits-Daten an Maklerpools weitergeben, mit denen wir zusammenarbeiten. Dies sind: Fonds Finanz Maklerservice GmbH, Qualitypool GmbH, Jung, DMS & Cie. AG und DEMV Deutscher Maklerverbund GmbH. Die Weitergabe an die Maklerpools ist erforderlich, um für dich Angebote für Versicherungen heraussuchen und diese vergleichen zu können.
+    Wenn Du eine Versicherung abschließt oder wir für dich einen Versicherungsfall melden oder bearbeiten sollen, werden die diesbezüglich relevanten Gesundheitsangaben zur Abwicklung von uns an deinen jeweiligen Versicherer übermittelt. Du willigst daher ein, dass wir deine personen- und gesundheitsbezogenen Daten erheben, speichern und verwenden dürfen. Hierfür müssen wir deine Einwilligung protokollieren. Wir stellen sicher, dass du den Inhalt der Einwilligung jederzeit abrufen und dass du diese Einwilligung jederzeit widerrufen kannst.
+    """
+    Then user closes "health notification" modal
+
+    # Questionnaire 1
+    And  user clicks on "Weiter" button
+    Then user sees "Wen möchtest du versichern?" question label
+    And  user sees that "Weiter" button is disabled
+
+    # Previous Answer & Questionnaire 2
+    When user selects "Erwachsener" questionnaire option
+    Then user sees "Was ist dein aktueller Berufsstand?" question label
+
+    # Previous Answer & Questionnaire 3
+    When user selects "Angestellter" questionnaire option
+    Then user sees "Hast du noch weitere Anmerkungen?" question label
+
+    # Previous Answer & Questionnaire 4
+    When user enters "No" into answer input field
+    And  user clicks on "Weiter" button
+
+    # Appointment form
+    When user enters "John" into Vorname input field
+    And  user enters "Doe" into Nachname input field
+    And  user enters "76546556543" into Deine Nummer input field
+    And  user selects "next business" day in calendar
+    And  user selects "default" as appointment time
+    And  user clicks on "Absenden" button
+    Then user is on the clark 2 registration page
+    And  user sees text "Sichere deinen Fortschritt"
+    And  user sees email address input field
+    And  user sees password input field
+
+    When user enters their email address data
+    And  user enters their password data
+    And  user clicks on "Jetzt registrieren" button
+    Then user is on the clark 2 appointment rewards page
+
+    When user clicks on "Zu deinen Verträgen" link
+    Then user is on the manager page
+    And  user sees text "Dein Beratungstermin ist am"
+    And  user sees contract card "Private Krankenversicherung"

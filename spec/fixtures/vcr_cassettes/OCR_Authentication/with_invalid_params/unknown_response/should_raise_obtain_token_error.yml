@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://poc-api-test.insiders.cloud/1/rest/accounts/authentication/requesttoken
+    body:
+      encoding: UTF-8
+      string: '{"username":"test.user.invalid@clark.de","password":"12345678"}'
+    headers:
+      User-Agent:
+      - Faraday v0.15.3
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 403
+      message: "(Error10031): The account is locked until 20181019 15:01:44Z (Transaction=c7b6452a)"
+    headers:
+      Cache-Control:
+      - private
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/xml; charset=utf-8
+      Server:
+      - ''
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Date:
+      - Fri, 19 Oct 2018 15:01:34 GMT
+    body:
+      encoding: UTF-8
+      string: 'null'
+    http_version: 
+  recorded_at: Fri, 19 Oct 2018 15:00:56 GMT
+recorded_with: VCR 4.0.0

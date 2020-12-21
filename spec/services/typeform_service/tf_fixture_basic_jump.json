@@ -1,0 +1,246 @@
+{
+  "id": "LHuXMa",
+  "title": "basic_jump",
+  "theme": {
+    "href": "https:\/\/api.typeform.com\/themes\/6lPNE6"
+  },
+  "workspace": {
+    "href": "https:\/\/api.typeform.com\/workspaces\/VQRTWc"
+  },
+  "settings": {
+    "is_public": true,
+    "is_trial": false,
+    "language": "en",
+    "progress_bar": "percentage",
+    "show_progress_bar": true,
+    "show_typeform_branding": true,
+    "meta": {
+      "allow_indexing": false
+    }
+  },
+  "thankyou_screens": [
+    {
+      "ref": "default_tys",
+      "title": "Done! Your information was sent perfectly.",
+      "properties": {
+        "show_button": false,
+        "share_icons": false
+      }
+    }
+  ],
+  "fields": [
+    {
+      "id": "c7KBTPpLEVYo",
+      "title": "#1 Choice Jump",
+      "ref": "cddc338b-6bf8-4602-871b-60cbb0c1862b",
+      "properties": {
+        "randomize": false,
+        "allow_multiple_selection": false,
+        "allow_other_choice": false,
+        "vertical_alignment": true,
+        "choices": [
+          {
+            "id": "rKZm4R2ar2Fv",
+            "ref": "6ce6c1d9-d260-47f6-99ae-b896a93e31c5",
+            "label": "Continue to #2 by default"
+          },
+          {
+            "id": "LAhXkaVdwDrM",
+            "ref": "729646f9-db15-4033-9328-ce92dc0378d2",
+            "label": "Jump to #3"
+          },
+          {
+            "id": "bs9qGG9sr2pb",
+            "ref": "1865c868-be25-4160-9470-a0b06a9a16df",
+            "label": "Jump to #6 End"
+          }
+        ]
+      },
+      "validations": {
+        "required": true
+      },
+      "type": "multiple_choice"
+    },
+    {
+      "id": "XthZszVGrLjR",
+      "title": "#2 Always jump to #4",
+      "ref": "aa3fc24d-8954-4929-8652-a26f2ca01a81",
+      "validations": {
+        "required": false
+      },
+      "type": "short_text"
+    },
+    {
+      "id": "RTMdQ12quHfp",
+      "title": "#3 Give a long text",
+      "ref": "5d94cecd-2f5f-45b8-be44-cd2bf9b82fae",
+      "validations": {
+        "required": false
+      },
+      "type": "long_text"
+    },
+    {
+      "id": "jIATt23C9qCL",
+      "title": "#4 Skip question #5?",
+      "ref": "5ce61fec-3eba-4bbb-857a-0ca7c6c43544",
+      "validations": {
+        "required": false
+      },
+      "type": "yes_no"
+    },
+    {
+      "id": "cA9DNyYGUQU4",
+      "title": "#5 this might be skipped",
+      "ref": "1de56cef-2b5f-4b50-903b-4e2c10186198",
+      "validations": {
+        "required": false
+      },
+      "type": "long_text"
+    },
+    {
+      "id": "j8CglIFJETbc",
+      "title": "#6 End",
+      "ref": "96ab78d0-81a9-425f-bcd2-73d6e417573e",
+      "validations": {
+        "required": false
+      },
+      "type": "long_text"
+    }
+  ],
+  "logic": [
+    {
+      "type": "field",
+      "ref": "cddc338b-6bf8-4602-871b-60cbb0c1862b",
+      "actions": [
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "5d94cecd-2f5f-45b8-be44-cd2bf9b82fae"
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "cddc338b-6bf8-4602-871b-60cbb0c1862b"
+              },
+              {
+                "type": "choice",
+                "value": "729646f9-db15-4033-9328-ce92dc0378d2"
+              }
+            ]
+          }
+        },
+        {
+          "action": "not_a_jump"
+        },
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "96ab78d0-81a9-425f-bcd2-73d6e417573e"
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "cddc338b-6bf8-4602-871b-60cbb0c1862b"
+              },
+              {
+                "type": "choice",
+                "value": "1865c868-be25-4160-9470-a0b06a9a16df"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "field",
+      "ref": "bogus",
+      "actions": [
+        {
+          "action": "jump"
+        }
+      ]
+    },
+    {
+      "type": "field",
+      "ref": "aa3fc24d-8954-4929-8652-a26f2ca01a81",
+      "actions": [
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "5ce61fec-3eba-4bbb-857a-0ca7c6c43544"
+            }
+          },
+          "condition": {
+            "op": "always",
+            "vars": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "field",
+      "ref": "5ce61fec-3eba-4bbb-857a-0ca7c6c43544",
+      "actions": [
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "96ab78d0-81a9-425f-bcd2-73d6e417573e"
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "5ce61fec-3eba-4bbb-857a-0ca7c6c43544"
+              },
+              {
+                "type": "constant",
+                "value": true
+              }
+            ]
+          }
+        },
+        {
+          "action": "jump",
+          "details": {
+            "to": {
+              "type": "field",
+              "value": "1de56cef-2b5f-4b50-903b-4e2c10186198"
+            }
+          },
+          "condition": {
+            "op": "is",
+            "vars": [
+              {
+                "type": "field",
+                "value": "5ce61fec-3eba-4bbb-857a-0ca7c6c43544"
+              },
+              {
+                "type": "constant",
+                "value": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "_links": {
+    "display": "https:\/\/clarksurvey.typeform.com\/to\/LHuXMa"
+  }
+}

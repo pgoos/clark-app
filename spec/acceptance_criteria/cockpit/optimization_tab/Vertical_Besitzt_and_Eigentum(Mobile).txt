@@ -1,0 +1,17 @@
+Scenario: Vertical Besitzt and Eigentum #Mobile#
+
+ Preconditions: At the end of Bedarfscheck screen see a screen having text  'Geschafft! Willkommen ub deinem versicherungscockpit' with three rings
+ Scenarion:  Life ascpect Besitzt and Eigentum can be explained at separate screen
+
+ User logged in
+ User lands to cockpit
+ When clicks at Bedarfcheck Starten button
+ At the end of the Bedarfscheck user see a screen having text 'Geschafft! Willkommen ub deinem versicherungscockpit'
+ And user clicks the button jetzt zu deinem Ergebnis
+ In new screen user see three ri ngs in screens banner
+ Small Green ring for Besitz and Eigentum, a green ring for Altervorsorge a pink ring around green for Gesundheit & Existenz and  Blue ring around pink
+ Verify user can swipe the banner for all three life aspects on Mobile
+ User see a text 'Geschafft! Willkommen ub deinem versicherungscockpit'
+ Verfiy no. of green splits in the ring means no. of insurances user have from this life aspect
+ Verify within the ring the life aspect score of total no. insurances must have by current insurances is displayed in numbers
+ Verify priority rating representing how important is this life aspect to user

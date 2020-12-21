@@ -1,0 +1,29 @@
+FROM ruby:2.3-stretch
+
+RUN apt-get update &&\
+    apt-get install -yq apt-utils apt-transport-https wget gnupg2 ca-certificates &&\
+    echo 'deb https://deb.nodesource.com/node_10.x stretch main' > /etc/apt/sources.list.d/nodesource.list &&\
+    wget -q -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - &&\
+    apt-get update &&\
+    apt-get install -yq --no-install-recommends make gcc g++ patch libcurl4-openssl-dev libicu-dev \
+    nodejs postgresql-client libpq-dev python-pip python-dev python-setuptools unzip &&\
+    apt-get clean all &&\
+    pip install awscli
+
+RUN /usr/local/bin/gem update --system
+
+RUN apt install imagemagick
+
+RUN apt-get update &&\
+    apt-get install -y g++ qt5-default libqt5webkit5-dev gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-x
+
+ENV RAILS_VERSION 5.0.7
+ENV LANG C.UTF-8
+ENV PATH /usr/local/bin:/usr/local/bundle/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /var/app
+
+COPY . /var/app/
+COPY ./config/database.yml.docker ./config/database.yml
+
+ENTRYPOINT ["/var/app/entrypoint.sh"]

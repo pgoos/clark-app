@@ -1,0 +1,22 @@
+# == Schema Information
+#
+# Table name: roles
+#
+#  id         :integer          not null, primary key
+#  identifier :string
+#  name       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  weight     :integer          default(1)
+#
+
+super_admin:
+  name: 'SuperAdmin'
+  identifier: 'super_admin'
+  permissions: <%= Permission.wanted_routes.map { |route| route.requirements.values.join('_').gsub('/','_') }.join(', ') %>
+finance_agent:
+  name: 'FinanceAgent'
+  identifier: 'finance_agent'
+other_admin:
+  name: 'OtherAdmin'
+  identifier: 'other_admin'

@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "required": [
+    "companies"
+  ],
+  "properties": {
+    "companies": {
+      "type": "array",
+      "items": {
+        "$ref": "company.json"
+      }
+    }
+  }
+}

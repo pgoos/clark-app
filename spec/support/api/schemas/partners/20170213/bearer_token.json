@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "required": [
+    "access_token",
+    "token_type",
+    "expires_at"
+  ],
+  "properties": {
+    "instance_ident": {
+      "type": "string"
+    },
+    "access_token": {
+      "type": "string"
+    },
+    "token_type": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string"
+    }
+  }
+}

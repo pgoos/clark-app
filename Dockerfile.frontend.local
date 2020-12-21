@@ -1,0 +1,13 @@
+# #####################
+#
+# Frontend
+#
+FROM node:10-stretch-slim AS clark_frontend
+
+RUN mkdir -p /app/client
+
+WORKDIR /app/client
+
+RUN npm install -g ember-cli
+
+EXPOSE 4200

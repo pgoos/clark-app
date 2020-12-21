@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "required": [
+    "acquired_by_clark",
+    "mandate_id"
+  ],
+  "properties": {
+    "acquired_by_clark": {
+      "type": "boolean",
+      "value": true
+    },
+    "mandate_id": {
+      "type": "integer"
+    }
+  }
+}

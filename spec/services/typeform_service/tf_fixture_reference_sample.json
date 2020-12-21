@@ -1,0 +1,179 @@
+{
+  "id": "rNipKZ",
+  "title": "Reference Sample currently supported",
+  "theme": {
+    "href": "https:\/\/api.typeform.com\/themes\/6lPNE6"
+  },
+  "workspace": {
+    "href": "https:\/\/api.typeform.com\/workspaces\/VQRTWc"
+  },
+  "settings": {
+    "is_public": true,
+    "is_trial": false,
+    "language": "en",
+    "progress_bar": "proportion",
+    "show_progress_bar": true,
+    "show_typeform_branding": true,
+    "meta": {
+      "allow_indexing": false
+    }
+  },
+  "welcome_screens": [
+    {
+      "ref": "5cbdec82-4bc6-4be7-87a0-0e15ddf4a0d3",
+      "title": "Text for Welcome Screen goes to Questionnaire.description",
+      "properties": {
+        "show_button": true,
+        "button_text": "Start"
+      }
+    }
+  ],
+  "thankyou_screens": [
+    {
+      "ref": "default_tys",
+      "title": "Done! Your information was sent perfectly.",
+      "properties": {
+        "show_button": false,
+        "share_icons": false
+      }
+    }
+  ],
+  "fields": [
+    {
+      "id": "MIncR8ZTUdcB",
+      "title": "Group !",
+      "ref": "f42b9ec7-722c-4a3a-9876-4f96ac41b9c3",
+      "properties": {
+        "show_button": true,
+        "button_text": "Continue",
+        "fields": [
+          {
+            "id": "m4EE4txtcbdK",
+            "title": "Question in group",
+            "ref": "580f8bc1-b37a-4f29-a845-0df1aed2def4",
+            "validations": {
+              "required": false
+            },
+            "type": "long_text"
+          }
+        ]
+      },
+      "type": "group"
+    },
+    {
+      "id": "ovxHpmNc5csr",
+      "title": "Multiple Choice question text, required, multi selection",
+      "ref": "3ad13c4b-3972-4fb7-b63c-ac6e01881f28",
+      "properties": {
+        "description": "Description of multiple choice question",
+        "randomize": false,
+        "allow_multiple_selection": true,
+        "allow_other_choice": false,
+        "vertical_alignment": true,
+        "choices": [
+          {
+            "id": "rcMthEjlL3YA",
+            "ref": "cd7fd484-7210-454b-a2f1-80f658c53525",
+            "label": "Choice one text"
+          },
+          {
+            "id": "GLYlecupf4zv",
+            "ref": "f7565d01-9b92-4824-88d4-e298213e43fe",
+            "label": "Choice two text"
+          },
+          {
+            "id": "chxUbLNpvjP4",
+            "ref": "b7f45daa-bcca-4450-b1d5-90e61303f7d6",
+            "label": "Choice three text"
+          }
+        ]
+      },
+      "validations": {
+        "required": true
+      },
+      "type": "multiple_choice"
+    },
+    {
+      "id": "LqbnTKYnjxLL",
+      "title": "Short text question text, not required",
+      "ref": "fad3b95a-1ca8-44db-975c-db418c3f0b63",
+      "properties": {
+        "description": "Description of short text"
+      },
+      "validations": {
+        "required": false
+      },
+      "type": "short_text"
+    },
+    {
+      "id": "Lh0VXMJnEr4T",
+      "title": "Long text question text, not required, no description",
+      "ref": "98a0f533-ba9d-4113-a993-cafc4b3620d6",
+      "validations": {
+        "required": false
+      },
+      "type": "long_text"
+    },
+    {
+      "id": "dRcYtaXkYK6f",
+      "title": "Number question text, required",
+      "ref": "69dcca9d-115e-49d4-9bdb-871c53e0863a",
+      "properties": {
+        "description": "Description of number question"
+      },
+      "validations": {
+        "required": true
+      },
+      "type": "number"
+    },
+    {
+      "id": "hOoGYRWBvC0P",
+      "title": "Drop Down Question text, single select",
+      "ref": "5cff345f-4341-420b-bbd7-21e3a3915560",
+      "properties": {
+        "alphabetical_order": false,
+        "choices": [
+          {
+            "label": "Drop down choice one text"
+          },
+          {
+            "label": "Drop down choice two text"
+          }
+        ]
+      },
+      "validations": {
+        "required": false
+      },
+      "type": "dropdown"
+    },
+    {
+      "id": "y4Es7BS2rHhR",
+      "title": "Yes \/ No question text, not required",
+      "ref": "03250c2b-936b-47c1-ac21-b23ec10f6731",
+      "properties": {
+        "description": "Description of Yes \/ No question"
+      },
+      "validations": {
+        "required": false
+      },
+      "type": "yes_no"
+    },
+    {
+      "id": "x9lCbU1AcbJx",
+      "title": "Date question, not required",
+      "ref": "0349ce91-d089-4c75-91d4-29325d89c524",
+      "properties": {
+        "description": "Description of date question",
+        "structure": "MMDDYYYY",
+        "separator": "\/"
+      },
+      "validations": {
+        "required": false
+      },
+      "type": "date"
+    }
+  ],
+  "_links": {
+    "display": "https:\/\/clarksurvey.typeform.com\/to\/rNipKZ"
+  }
+}

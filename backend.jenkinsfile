@@ -1,0 +1,304 @@
+library ('base')
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yamlFile '.jenkins/backend.yaml'
+    }
+  }
+
+  options {
+    timeout(time: 2, unit: 'HOURS')
+    timestamps()
+    buildDiscarder(
+      logRotator(
+        daysToKeepStr: env.BRANCH_NAME == "master" ? '-1' : '14',
+        numToKeepStr: env.BRANCH_NAME == "master" ? '-1' : '100',
+        artifactDaysToKeepStr: '30',
+      ))
+  }
+
+  parameters {
+    booleanParam(name: 'OPSWORKS_DEPLOY', defaultValue: false, description: 'Deploy to staging1')
+    booleanParam(name: 'SMOKE_TESTS', defaultValue: false, description: 'Smoke tests')
+  }
+
+  environment {
+    RAILS_ENV = "test"
+    CHROME_WITHOUT_SANDBOX = "true"
+    CUCUMBER_AUTOMATION_CREDS = credentials('jenkins-cucumber-automation')
+    DISABLE_AUTO_YARN_INSTALL = "true"
+    OPSWORKS_STAGING_STACK_ID = credentials('staging1-opsworks-stack-id')
+    OPSWORKS_STAGING_APP_ID = credentials('staging1-opsworks-app-id')
+    CUCUMBER_TARGET_URL = "https://staging.clark.de"
+  }
+
+  stages {
+    stage('setup') {
+      when {
+        not {
+          anyOf {
+            buildingTag();
+            expression { return params.SMOKE_TESTS }
+            expression { return params.OPSWORKS_DEPLOY }
+          }
+        }
+      }
+
+      steps {
+        script {
+        //TODO: put back withStatus when backend build is stable
+          ansiColor('xterm') {
+            container('application') {
+              withAWS(region: env.AWS_REGION, role: env.AWS_ROLE, roleAccount: env.AWS_ACCOUNT_NUCLEUS){
+                //withCache('application/gems', 'vendor/bundle') {
+                  sh 'bundle install --jobs 3 --path vendor/bundle'
+                //}
+              }
+
+              sh 'cp config/database.yml.jenkins config/database.yml'
+
+              sh 'bundle exec rake db:create db:structure:load db:migrate --trace test:prepare'
+
+              sh "pg_dump9.5 -h localhost -d optisure_test -F c -b -v -f optisure.dmp"
+              sh "mkdir -p dump_db && mv optisure.dmp dump_db"
+
+              cacheDir = sh(script: 'yarn cache dir', returnStdout: true)
+              withAWS(region: env.AWS_REGION, role: env.AWS_ROLE, roleAccount: env.AWS_ACCOUNT_NUCLEUS){
+                //withCache('application/yarn', cacheDir) {
+                  sh "yarn bootstrap"
+                //}
+              }
+              stash name: 'workspace', includes: '**'
+            }
+          }
+        }
+      }
+    }
+
+    stage('running specs') {
+      // Don't run tests on tag or when running deployment/smoke tests
+      when {
+        not {
+          anyOf {
+                buildingTag();
+                expression { return params.SMOKE_TESTS }
+                expression { return params.OPSWORKS_DEPLOY }
+          }
+        }
+      }
+
+      steps {
+        script {
+          def jobsTests = readYaml file: "jenkins-tags.yml"
+
+          final jobs = [:]
+
+          jobsTests.each { jobName, jobConfig ->
+            def tags = jobConfig.tags
+            def isBrowser = jobConfig.browser || false
+            def masterData = jobConfig.master_data || false
+            def whitelabel = jobConfig.whitelabel
+            def envs = jobConfig.additionalEnvs ? jobConfig.additionalEnvs : [:]
+
+            jobs[jobName] = {
+              stage(jobName) {
+                def podDefinition = isBrowser ? ".jenkins/backend-with-browsers.yaml" : ".jenkins/backend.yaml"
+
+                podTemplate(yaml: readFile(podDefinition)) {
+                  node(POD_LABEL) {
+                    //TODO: put back withStatus when backend build is stable
+                    container('application') {
+                      unstash 'workspace'
+                      sh 'cp config/database.yml.jenkins config/database.yml'
+                      sh "bundle install --path vendor/bundle"
+
+                      sh "pg_restore9.5 -h localhost -v -d optisure_test dump_db/optisure.dmp"
+                      sh "TEST_ENV_NUMBER=2 bundle exec rake db:create"
+                      sh "pg_restore9.5 -h localhost -v -d optisure_test2 dump_db/optisure.dmp"
+
+                      if (whitelabel != null) {
+                        envs.put("APP", whitelabel)
+                      }
+
+                      if (isBrowser) {
+                        envs.put("EMBER_ENV", "circle")
+                        envs.put("CAPYBARA_LOGS", "true")
+                        envs.put("CAPYBARA_LOGGER_FILE", jobName)
+                      }
+
+                      finalEnvs = envs.collect { k,v -> "$k=$v" }
+                      withEnv(finalEnvs) {
+                        if (isBrowser) {
+                          dir('client') {
+                            sh "JOBS=1 yarn run build"
+                          }
+                          withAWS(region: env.AWS_REGION, role: env.AWS_ROLE, roleAccount: env.AWS_ACCOUNT_NUCLEUS){
+                            //withCache("application/sprockets/${jobName}", 'tmp/cache/assets/sprockets') {
+                              sh "bundle exec rails assets:precompile app:uglify --trace"
+                            //}
+                          }
+
+                          sh "mkdir -p public/assets/client && cp -r client/dist/* public/assets/client"
+                          sh "ruby -run -ehttpd ./public/assets/client/index.html -p4200 >./log/capybara_assets.log 2>&1 &"
+                        }
+
+                        if (masterData) {
+                          sh "bundle exec rake test:load_master_data"
+                        }
+
+                        final concurrentProcesses = 2
+                        final tagOptions = tags.collect { "--tag ${it}" }.join(' ')
+                        final formatOptions = '--format Fivemat --format RspecJunitFormatter'
+                        final output = "results/junit/tests.xml"
+
+                        final testOptions = "${tagOptions} ${formatOptions} -o ${output}"
+
+                        ansiColor('xterm') {
+                          try {
+                            if (masterData) {
+                              sh "bundle exec rspec spec ${testOptions}"
+                            } else {
+                              sh "bundle exec parallel_rspec spec -n ${concurrentProcesses} --test-options '${testOptions}'"
+                            }
+                          } catch(Exception exc) {
+                            if (isBrowser) {
+                              archiveArtifacts artifacts: 'log/capybara_server*.log'
+                              archiveArtifacts artifacts: 'log/capybara_assets*.log'
+                              archiveArtifacts artifacts: 'tmp/capybara/**/*'
+                            }
+
+                            throw exc
+                          } finally {
+                            sh "junit-merge -d results/junit"
+                            sh "mkdir -p results/rspec"
+                            sh "cp merged-test-results.xml results/rspec/merged-test-${jobName}-results.xml"
+                            sh "rm -rf results/junit"
+                            sh "mkdir results/junit-report"
+                            sh "xunit-viewer --results=results/rspec/merged-test-${jobName}-results.xml --output=results/junit-report/${jobName}.html"
+
+                            archiveArtifacts artifacts: 'results/**/*', fingerprint: true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          parallel jobs
+        }
+      }
+    }
+      //  stage('opsworks staging deploy') {
+      //    agent {
+      //      kubernetes {
+      //         defaultContainer 'jnlp'
+      //         yamlFile '.jenkins/backend.yaml'
+      //       }
+      //    }
+    //
+      //    when {
+      //      anyOf {
+      //        buildingTag();
+      //        expression { return params.OPSWORKS_DEPLOY }
+      //      }
+      //    }
+    //
+      //    steps {
+      //      script {
+      //        container('application') {
+      //          withSemaphore(name: "application-deploy", quantity: 1) { semaphoreName ->
+      //            echo "Start deploy to staging process"
+    //
+      //            // We're merging to the target branch on PRs
+      //            def currentRevision = (env.BRANCH_NAME.startsWith('PR')) ? 'HEAD~' : 'HEAD'
+      //            def commitId = sh(returnStdout: true, script: "git rev-parse ${currentRevision}")
+    //
+      //            def params = "--stack-id ${env.OPSWORKS_STAGING_STACK_ID} --app-id ${env.OPSWORKS_STAGING_APP_ID} --comment jenkins-${env.GIT_BRANCH}-${env.BUILD_NUMBER} "
+      //            def options = "--command '{\"Name\":\"deploy\",\"Args\":{\"migrate\":[\"true\"]}}' --custom-json '{\"deploy\":{\"optisure_staging\":{\"scm\":{\"revision\":\"${commitId}\"}}}}'"
+      //            def deploy_cmd = "opsworks create-deployment " + params + options
+    //
+      //            lock(label: semaphoreName, quantity: 1, variable: "LOCKED") {
+      //              withAWS(roleAccount: env.AWS_ACCOUNT_OPTISURE, role: env.AWS_ROLE, region: env.AWS_REGION) {
+      //                deployment = aws.withJson(deploy_cmd, "us-east-1")
+      //                echo "Deployment id number: ${deployment.DeploymentId} triggered"
+    //
+      //                /*
+      //                 Wait until a deployment has completed successfully. It will poll every 15 seconds until a successful state has been reached.
+      //                 This will exit with a return code of 255 after 40 failed checks * 10 minutes
+      //                 Because our staging deployment process sometimes takes 30 minutes, I added a timeout and retry block so we keep checking for 30
+      //                 minutes before failing
+      //                 */
+      //                deploy_status_cmd = "opsworks wait deployment-successful --deployment-id ${deployment.DeploymentId}"
+      //                echo "Checking status of deployment ${deployment.DeploymentId}. This can take a few minutes"
+      //                timeout(time: 30, unit: 'MINUTES') {
+      //                  retry(3) {
+      //                    aws(deploy_status_cmd, "us-east-1")
+      //                  }
+      //                }
+      //              }
+      //            }
+      //          }
+      //          echo "Start deploy to staging process"
+      //        }
+      //      }
+      //    }
+      //  }
+    //
+      //  stage('smoke tests') {
+      //    agent {
+      //      kubernetes {
+      //        defaultContainer 'jnlp'
+      //        yamlFile '.jenkins/backend.yaml'
+      //      }
+      //    }
+    //
+      //    when {
+      //      anyOf {
+      //        buildingTag();
+      //        expression { return params.SMOKE_TESTS }
+      //      }
+      //    }
+    //
+      //    steps {
+      //      script {
+      //        container('application') {
+
+      //          withAWS(region: env.AWS_REGION, role: env.AWS_ROLE, roleAccount: env.AWS_ACCOUNT_NUCLEUS){
+      //            withCache('application/gems', 'vendor/bundle') {
+      //              sh 'bundle install --jobs 3 --path vendor/bundle'
+      //            }
+      //          }
+    //
+      //          sh 'cp config/database.yml.jenkins config/database.yml'
+      //          sh 'bundle exec rake db:create db:structure:load db:migrate'
+    //
+      //          withEnv([
+      //            "CAPYBARA_DRIVER=headless_chrome",
+      //            "CUCUMBER_TARGET_URL=${env.CUCUMBER_TARGET_URL}",
+      //            "CHROME_WITHOUT_SANDBOX=true"]) {
+      //            ansiColor('xterm') {
+      //              try {
+      //                echo "Running the smoke tests against ${env.CUCUMBER_TARGET_URL}"
+      //                sh "bundle exec cucumber -t '@smoke and not @ignore' --format AllureCucumber::Formatter --out allure-results"
+      //              } finally {
+      //                allure([
+      //                  includeProperties: false,
+      //                  jdk: '',
+      //                  properties: [],
+      //                  reportBuildPolicy: 'ALWAYS',
+      //                  results: [[path: 'allure-results']]
+      //                ])
+      //              }
+      //            }
+      //          }
+      //        }
+      //      }
+      //    }
+      //  }
+  }
+}

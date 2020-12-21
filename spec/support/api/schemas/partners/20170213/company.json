@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "ident": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "details": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": ["string", "nil"]
+        },
+        "email": {
+          "type": ["string", "nil"]
+        }
+      }
+    },
+    "subcompanies": {
+      "type": "array",
+      "items": {
+        "$ref": "subcompany.json"
+      }
+    },
+    "supportive": {
+      "type": "boolean"
+    },
+    "gkv_percentage": {
+      "type": ["float", "nil"]
+    },
+    "average_response_time": {
+      "type": "integer"
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  }
+}

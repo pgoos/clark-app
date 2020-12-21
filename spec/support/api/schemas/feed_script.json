@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://clark.de",
+  "type": "object",
+  "properties": {
+    "script": {
+      "id": "https://clark.de/script",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "https://clark.de/script/id",
+          "type": "integer"
+        },
+        "name": {
+          "id": "https://clark.de/script/name",
+          "type": "string"
+        },
+        "messages": {
+          "id": "https://clark.de/script/messages",
+          "type": "array",
+          "items": [
+            {
+              "id": "https://clark.de/script/messages/0",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "https://clark.de/script/messages/0/id",
+                  "type": "string"
+                },
+                "text": {
+                  "id": "https://clark.de/script/messages/0/text",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "id": "https://clark.de/script/messages/1",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "https://clark.de/script/messages/1/id",
+                  "type": "string"
+                },
+                "text": {
+                  "id": "https://clark.de/script/messages/1/text",
+                  "type": "string"
+                },
+                "ctas": {
+                  "id": "https://clark.de/script/messages/1/ctas",
+                  "type": "array",
+                  "items": [
+                    {
+                      "id": "https://clark.de/script/messages/1/ctas/0",
+                      "type": "object",
+                      "properties": {
+                        "link": {
+                          "id": "https://clark.de/script/messages/1/ctas/0/link",
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "id": "https://clark.de/script/messages/1/ctas/0/link/text",
+                              "type": "string"
+                            },
+                            "href": {
+                              "id": "https://clark.de/script/messages/1/ctas/0/link/href",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "https://clark.de/script/messages/1/ctas/1",
+                      "type": "object",
+                      "properties": {
+                        "button": {
+                          "id": "https://clark.de/script/messages/1/ctas/1/button",
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "id": "https://clark.de/script/messages/1/ctas/1/button/text",
+                              "type": "string"
+                            },
+                            "event": {
+                              "id": "https://clark.de/script/messages/1/ctas/1/button/event",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "https://clark.de/script/messages/1/ctas/2",
+                      "type": "object",
+                      "properties": {
+                        "offer": {
+                          "id": "https://clark.de/script/messages/1/ctas/2/offer",
+                          "type": "object",
+                          "properties": {
+                            "icon": {
+                              "id": "https://clark.de/script/messages/1/ctas/2/offer/icon",
+                              "type": "string"
+                            },
+                            "href": {
+                              "id": "https://clark.de/script/messages/1/ctas/2/offer/href",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "evaluation_log": {
+          "id": "https://clark.de/script/evaluation_log"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "messages"
+      ]
+    }
+  },
+  "required": [
+    "script"
+  ]
+}

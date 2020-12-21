@@ -1,0 +1,41 @@
+# #####################
+#
+# Backend - base
+#
+FROM ruby:2.6.3-slim as clark_backend_base
+
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
+    apt-get install -y --no-install-recommends tzdata
+
+RUN apt-get update
+RUN apt-get install -y curl git make
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install -g yarn
+
+RUN apt-get install -y --no-install-recommends \
+  imagemagick wkhtmltopdf libpq-dev postgresql postgresql-client \
+  qt5-default libqt5webkit5-dev gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-x
+
+RUN mkdir -p /app
+WORKDIR /app
+
+RUN mkdir -p /gem_box
+ENV BUNDLE_PATH=/gem_box
+RUN gem install bundler -v 1.17.3
+
+EXPOSE 3000
+
+# #####################
+#
+# Backend - label
+#
+FROM clark_backend_base AS clark_backend_label
+
+ARG app
+ENV APP=$app
+
+ENV POSTGRESQL_DATABASE=clark_dev_$app
+ENV POSTGRESQL_TEST_DATABASE=clark_test_$app
+
+EXPOSE 3000

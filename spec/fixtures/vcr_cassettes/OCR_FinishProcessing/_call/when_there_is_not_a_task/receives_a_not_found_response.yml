@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: delete
+    uri: https://poc-api-test.insiders.cloud/1/rest/tasks/lock/invalid_id/false
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Authorization:
+      - Bearer token
+      Connection:
+      - close
+      User-Agent:
+      - http.rb/4.0.0
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Cache-Control:
+      - private
+      Server:
+      - ''
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Date:
+      - Wed, 31 Oct 2018 15:35:19 GMT
+      Connection:
+      - close
+      Content-Length:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      string: ''
+    http_version: 
+  recorded_at: Wed, 31 Oct 2018 15:35:14 GMT
+recorded_with: VCR 4.0.0

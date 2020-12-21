@@ -1,0 +1,83 @@
+version: "3.5"
+services:
+  application:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-backend
+    volumes:
+      - .:/var/app
+    ports:
+      - "3000:3000"
+      - "1080:1080"
+    networks:
+      - overlay
+    tty: true
+    environment:
+      APP: clark
+      RAILS_ENV: development
+      DOMAIN: 0.0.0.0:3000
+      S3_BUCKET: notset
+      AWS_REGION: eu-central-1
+      AWS_SECRET: notset
+      AWS_ACCESS_KEY: notset
+      SECRET_KEY_BASE: notset
+      WS_SHARED_SECRET: notset
+      DEVISE_SECRET_KEY: notset
+      WS_MESSAGES_API_END_POINT: 0.0.0.0:3000
+      INSIGN_BASE_URL: http://insign:8080/insign
+      INSIGN_HOST: insign
+      FRONTEND_HOST: frontend
+      POSTGRESQL_HOST: database
+      POSTGRESQL_DATABASE: optisure-development
+      POSTGRESQL_TEST_DATABASE: optisure-test
+      POSTGRESQL_USERNAME: clark
+      POSTGRESQL_PASSWORD: clark
+    depends_on:
+      - frontend
+      - database
+      - hermes
+      - insign
+  frontend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-frontend
+    environment:
+      RAILS_HOST: http://application:3000
+    volumes:
+      - .:/var/app/
+    ports:
+      - "4200:4200"
+    networks:
+      - overlay
+  database:
+    image: postgres:9.5.9
+    ports:
+      - "5432:5432"
+    networks:
+      - overlay
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: clark
+      POSTGRES_PASSWORD: clark
+  insign:
+    image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/insign:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - overlay
+  hermes:
+    image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/hermes:latest
+    ports:
+      - "8801:8801"
+      - "9901:9901"
+    networks:
+      - overlay
+    environment:
+      WS_SHARED_SECRET: $WS_SHARED_SECRET
+
+volumes:
+  postgres_data:
+
+networks:
+  overlay:

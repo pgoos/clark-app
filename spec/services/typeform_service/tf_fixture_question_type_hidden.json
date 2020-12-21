@@ -1,0 +1,38 @@
+{
+  "id": "YuSfiF21xzij",
+  "title": "Welchen Betrag kannst du monatlich für deine betriebliche Altersvorsorge sparen?",
+  "ref": "d00e2e20-6603-42a7-8f13-e0adf34706f4",
+  "properties": {
+    "description": "(Der Höchstbeitrag liegt hier bei 520 € im Monat)",
+    "randomize": false,
+    "allow_multiple_selection": false,
+    "allow_other_choice": false,
+    "vertical_alignment": true,
+    "choices": [
+      {
+        "id": "xtesfBxifMmy",
+        "ref": "d07716d0-e6ec-4733-9e7c-76e8756e8802",
+        "label": "50 Euro"
+      },
+      {
+        "id": "EisFyAwmfckA",
+        "ref": "ead257eb-b608-4174-a506-45504071e0d9",
+        "label": "50 - 100 Euro"
+      },
+      {
+        "id": "hc0VSovtpyUk",
+        "ref": "5c267d7f-5b54-43e8-9898-650ca444a6e8",
+        "label": "100 - 200 Euro"
+      },
+      {
+        "id": "d4VaT3hzuieU",
+        "ref": "7885fe4c-15b2-48ab-a65f-bf942195ca87",
+        "label": "Mehr als 200 Euro"
+      }
+    ]
+  },
+  "validations": {
+    "required": true
+  },
+  "type": "hidden"
+}

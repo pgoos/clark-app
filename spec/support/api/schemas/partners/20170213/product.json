@@ -1,0 +1,165 @@
+{
+  "type": "object",
+  "properties": {
+    "product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "mandate_id": {
+          "type": "integer"
+        },
+        "category_ident": {
+          "type": "string"
+        },
+        "company_ident": {
+          "type": "string"
+        },
+        "plan_ident": {
+          "type": "string"
+        },
+        "number": {
+          "type": "string"
+        },
+        "contract_started_at": {
+          "type": "date"
+        },
+        "contract_ended_at": {
+          "type": ["date", "null"]
+        },
+        "renewal_period": {
+          "type": ["integer", "null"]
+        },
+        "premium_price_cents": {
+          "type": "integer"
+        },
+        "premium_price_currency": {
+          "type": ["string", "null"]
+        },
+        "premium_period": {
+          "type": "string"
+        },
+        "gkv_price_percentage": {
+          "type": ["float", "null"]
+        },
+        "portfolio_commission": {
+          "type": "object",
+          "properties": {
+            "price_cents": {
+              "type": ["integer", "null"]
+            },
+            "price_currency": {
+              "type": ["string", "null"]
+            },
+            "period": {
+              "type": ["string", "null"]
+            }
+          }
+        },
+        "acquisition_commission": {
+          "type": "object",
+          "properties": {
+            "price_cents": {
+              "type": ["integer", "null"]
+            },
+            "price_currency": {
+              "type": ["string", "null"]
+            },
+            "period": {
+              "type": ["string", "null"]
+            },
+            "payouts_count": {
+              "type": ["integer", "null"]
+            }
+          }
+        },
+        "contact_email": {
+          "type": "string"
+        },
+        "contact_phone_number": {
+          "type": "string"
+        },
+        "coverage_features": {
+          "type": ["array", "null"],
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "name": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        "advices": {
+          "type": ["array", "null"],
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "mandate_id": {
+              "type": "integer"
+            },
+            "content": {
+              "type": ["array", "null"],
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "policy_document": {
+          "type": ["object", "null"],
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "content_type": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "date"
+            }
+          }
+        },
+        "documents": {
+          "type": ["array", "null"]
+        },
+        "state": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

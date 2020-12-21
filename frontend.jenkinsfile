@@ -1,0 +1,349 @@
+library ("base")
+
+pipeline {
+  agent none
+
+  options {
+    skipDefaultCheckout()
+    timeout(time: 2, unit: 'HOURS')
+    timestamps()
+    buildDiscarder(
+      logRotator(
+        daysToKeepStr: env.BRANCH_NAME == "master" ? '-1' : '14',
+        numToKeepStr: env.BRANCH_NAME == "master" ? '-1' : '100',
+        artifactDaysToKeepStr: '30',
+      ))
+  }
+
+  parameters {
+    booleanParam(name: 'LINT', defaultValue: true, description: 'Run linters')
+    booleanParam(name: 'TEST', defaultValue: true, description: 'Run tests')
+    booleanParam(name: 'DEPLOY_STAGING', defaultValue: false, description: 'Deploy to staging')
+  }
+
+  environment {
+    // `BUILD_TAG` may contain unsafe charachters, like `%`.
+    BUILD_HASH = md5(BUILD_TAG)
+  }
+
+  stages {
+    stage('dependencies') {
+      agent {
+        kubernetes {
+          defaultContainer 'jnlp'
+          yamlFile '.jenkins/fe-node.yaml'
+        }
+      }
+
+      steps {
+        script {
+          container('node') {
+            checkout scm
+
+            def cacheDir = sh(script: 'yarn cache dir', returnStdout: true).trim()
+
+            sh "yarn install --frozen-lockfile --non-interactive"
+
+            stash(
+              name: "${env.BUILD_HASH}-node",
+              includes: (
+                readJSON(file: "package.json").workspaces.collect {
+                  it.endsWith('*') ? "${it}*" : "${it}/**"
+                }
+                + [
+                  'node_modules/**',
+                  'package.json',
+                  'yarn.lock',
+                  '.prettierrc',
+                  '.jenkins/*' // required for Kubernetes pod defintions
+                ]
+              ).join(',')
+            )
+          }
+        }
+      }
+    }
+
+    stage("Lint & Test") {
+      parallel {
+        stage("Lint") {
+          agent {
+            kubernetes {
+              defaultContainer 'jnlp'
+              yamlFile '.jenkins/fe-node.yaml'
+            }
+          }
+
+          when {
+            expression { return params.LINT }
+          }
+
+          steps {
+            container('node') {
+              unstash(name: "${env.BUILD_HASH}-node")
+
+              script {
+                def lintBuilds = [:]
+
+                final rootPackageJSON = readJSON(file: "package.json")
+
+                withSemaphore(name: env.NODE_NAME, quantity: 4) { semaphoreName ->
+                  withBatchStatus(
+                    name: "Frontend lint",
+                    description: "Running frontend lint tasks"
+                  ) { lintNotification ->
+                    for (workspace in rootPackageJSON.workspaces) {
+                      workspacePackageJSONs = findFiles(glob: "${workspace}/package.json").collectEntries {
+                        [(new File(it.getPath()).getParentFile().getPath()): readJSON(file: it.getPath())]
+                      }
+
+                      workspacePackageJSONs.findAll { it.value.containsKey('scripts') }.each { path, content ->
+                        final allJobs = content.scripts.keySet()
+
+                        allJobs.findAll { it.startsWith('lint:') }.each { job ->
+                          lintNotification.registerStatus(
+                            name: "${content.name} ${job}"
+                          ) {
+                            echo "Running ${content.name} ${job}"
+
+                            lintBuilds["${content.name} ${job}"] = {
+                              lock(label: semaphoreName, quantity: 1, variable: "LOCKED") {
+                                dir(path) {
+                                  ansiColor('xterm') {
+                                    sh "yarn run ${job}"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+
+                    parallel lintBuilds
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        stage("Tests") {
+          agent {
+            kubernetes {
+              defaultContainer 'jnlp'
+              yamlFile '.jenkins/fe-node.yaml'
+            }
+          }
+
+          when {
+            expression { return params.TEST }
+          }
+
+          steps {
+            container('node') {
+              unstash(name: "${env.BUILD_HASH}-node")
+
+              script {
+                withBatchStatus(
+                  name: "Frontend tests",
+                  description: "Running Frontend tests"
+                ) { testScope ->
+                  def testBuilds = [:]
+
+                  final rootPackageJSON = readJSON(file: "package.json")
+
+                  for (workspace in rootPackageJSON.workspaces) {
+                    workspacePackageJSONs = findFiles(glob: "${workspace}/package.json").collectEntries {
+                      [(new File(it.getPath()).getParentFile().getPath()): readJSON(file: it.getPath())]
+                    }
+
+                    workspacePackageJSONs.findAll { it.value.containsKey('scripts') }.each { path, content ->
+                      final allJobs = content.scripts.keySet()
+
+                      String[] testJobs
+
+                      if (allJobs.contains('test:jenkins')) {
+                        testJobs = ['test:jenkins']
+                      } else if (allJobs.contains('test')) {
+                        testJobs = ['test']
+                      } else {
+                        testJobs = allJobs.findAll { it.startsWith('test:') }
+                      }
+
+                      testJobs.each { job ->
+                        echo "${content.name} ${job}"
+
+                        testBuilds["${content.name} ${job}"] = {
+                          def podDefinition = content.name == '@clarksource/client' ? ".jenkins/fe-node-clark-test.yaml" : ".jenkins/fe-node-with-browsers.yaml"
+
+                          podTemplate(yaml: readFile(podDefinition)) {
+                            node(POD_LABEL) {
+                              container('node') {
+                                unstash(name: "${env.BUILD_HASH}-node")
+
+                                testScope.registerStatus(
+                                  name: "${content.name} ${job}"
+                                ) {
+                                  withEnv(["JOBS=2"]) { // https://github.com/babel/broccoli-babel-transpiler#number-of-jobs
+                                    dir(path) {
+                                      ansiColor('xterm') {
+                                        try {
+                                          sh "yarn run ${job}"
+                                        } catch (error) {
+                                          sh "cat /tmp/error.dump.*.log || true"
+                                          throw error
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  parallel testBuilds
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('build') {
+      agent {
+        kubernetes {
+          defaultContainer 'jnlp'
+          yamlFile '.jenkins/fe-node-build.yaml'
+        }
+      }
+
+      steps {
+        script {
+          def brands = [
+            vkb: [
+              localUrlsOnly: true,
+            ]
+          ]
+
+          parallel brands.collectEntries { brand, config ->
+            [brand, {
+              withStatus(
+                context: "Frontend ${brand} build [staging]",
+                description: "Building staging assets for ${brand}",
+              ) {
+                unstash(name: "${env.BUILD_HASH}-node")
+
+                withEnv([
+                  "NODE_OPTIONS=--max-old-space-size=2500",
+                  "JOBS=1", // https://github.com/babel/broccoli-babel-transpiler#number-of-jobs
+                  "APP=${brand}",
+                  "LOCAL_URLS_ONLY=${config.localUrlsOnly}",
+                ]) {
+                  dir('client') {
+                    ansiColor('xterm') {
+                      container('node') {
+                        try {
+                          sh "yarn ember build --output-path dist/${brand} --environment staging"
+                          stash(
+                            name: "${env.BUILD_HASH}-build-${brand}",
+                            includes: "dist/${brand}/**"
+                          )
+                        } catch (error) {
+                          sh "cat /tmp/error.dump.*.log || true"
+                          throw error
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }]
+          }
+        }
+      }
+    }
+
+    stage('deploy [staging]') {
+      agent {
+        kubernetes {
+          defaultContainer 'jnlp'
+          yamlFile '.jenkins/fe-node.yaml'
+        }
+      }
+
+      when {
+        expression { return params.DEPLOY_STAGING }
+      }
+
+      steps {
+        script {
+          def brands = [
+            vkb: '419860265686'
+          ]
+
+          brands.each { brand, accountId ->
+            withStatus(
+              context: "Frontend ${brand} deploy -> ${accountId}",
+              descriptionPending: "Deploying ${brand} to ${accountId}-staging-frontend S3 bucket",
+            ) {
+              container('node') {
+                withEnv([
+                  "AWS_REGION=eu-central-1",
+                  "EMBER_S3_BUCKET=${accountId}-staging-frontend",
+                  "EMBER_OUTPUT_PATH=dist/${brand}",
+                  "EMBER_CLI_DEPLOY_REUSE_BUILD=true"
+                ]) {
+                  dir('client') {
+                    unstash(name: "${env.BUILD_HASH}-build-${brand}")
+
+                    ansiColor('xterm') {
+                      sh 'yarn ember deploy staging --activate'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /* stage('production deployment') { */
+    /*   when { buildingTag() } */
+    /*  */
+    /*   input { */
+    /*       message "Deploy ${env.BRANCH_NAME} to production?" */
+    /*       ok "Yes" */
+    /*       submitter "/QA" */
+    /*  */
+    /*       parameters { */
+    /*           booleanParam(name: 'CONFIRMATION', defaultValue: false, description: 'Deployment confirmed by QA?') */
+    /*       } */
+    /*   } */
+    /*  */
+    /*   steps { */
+    /*     script { */
+    /*       def brands = [ */
+    /*         vkb: '419860265686' */
+    /*       ] */
+    /*  */
+    /*       brands.each { brand -> */
+    /*         withEnv(["AWS_REGION=eu-central-1", "EMBER_S3_BUCKET=${brand.value}-staging-frontend"]) { */
+    /*           dir('client') { */
+    /*             ansiColor('xterm') { */
+    /*               sh 'yarn ember deploy staging' */
+    /*             } */
+    /*           } */
+    /*         } */
+    /*       } */
+    /*     } */
+    /*   } */
+    /* } */
+  }
+}

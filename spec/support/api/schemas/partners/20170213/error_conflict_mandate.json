@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": [
+    "error"
+  ],
+  "properties": {
+    "error": {
+      "type": "object",
+      "items": {
+        "required": [
+          "type",
+          "code",
+          "message",
+          "mandate_id"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "mandate_id": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "data": {
+    "attributes": [],
+    "processes": [
+      {
+        "documents": [
+          {
+            "documentWasDivided": false,
+            "state": "Exporter",
+            "createdBy": "System",
+            "userComment": "",
+            "docType": "Default",
+            "docClass": "Clark/Default",
+            "tables": [],
+            "fields": [
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": {
+                  "pageIndex": 0,
+                  "height": 32,
+                  "width": 203,
+                  "left": 1519,
+                  "top": 1102
+                },
+                "type": "Date",
+                "value": "2019-09-14",
+                "name": "END_DATE"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "OCR",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": {
+                  "pageIndex": 0,
+                  "height": 31,
+                  "width": 326,
+                  "left": 778,
+                  "top": 1274
+                },
+                "type": "String",
+                "value": "709/237527-F-14",
+                "name": "INSURANCE_NUMBER"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "NoAction",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": {
+                  "pageIndex": 0,
+                  "height": 44,
+                  "width": 342,
+                  "left": 1528,
+                  "top": 2083
+                },
+                "type": "String",
+                "value": "Privathaftpflicht",
+                "name": "PLAN_CATEGORY_NAME"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "DBLookup",
+                "alteredBy": [
+                  "insiders-admin@clark.de"
+                ],
+                "visible": true,
+                "verified": true,
+                "geo": null,
+                "type": "String",
+                "value": "1163065",
+                "name": "MANDATE_ID"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": null,
+                "type": "String",
+                "value": "2f4d50ae",
+                "name": "PLAN_IDENT"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "NoAction",
+                "alteredBy": [
+                  "insiders-admin@clark.de",
+                  "insiders-admin@clark.de"
+                ],
+                "visible": true,
+                "verified": true,
+                "geo": null,
+                "type": "String",
+                "value": "hukco5c2c76",
+                "name": "PLAN_SUBCOMPANY_IDENT"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": null,
+                "type": "String",
+                "value": "jährlich",
+                "name": "PREMIUM_PERIOD"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": null,
+                "visible": true,
+                "verified": true,
+                "geo": {
+                  "pageIndex": 1,
+                  "height": 36,
+                  "width": 92,
+                  "left": 2068,
+                  "top": 907
+                },
+                "type": "Number",
+                "value": 73.0,
+                "name": "PREMIUM_PRICE"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": [
+                  "insiders-admin@clark.de"
+                ],
+                "visible": true,
+                "verified": true,
+                "geo": null,
+                "type": "String",
+                "value": "normaler Beitrag",
+                "name": "PREMIUM_STATE"
+              },
+              {
+                "checkState": "OK",
+                "verifierAction": "Confirmed",
+                "alteredBy": [
+                  "insiders-admin@clark.de"
+                ],
+                "visible": true,
+                "verified": true,
+                "geo": {
+                  "pageIndex": 0,
+                  "height": 32,
+                  "width": 203,
+                  "left": 1519,
+                  "top": 1102
+                },
+                "type": "Date",
+                "value": "2018-09-14",
+                "name": "START_DATE"
+              }
+            ],
+            "pages": [
+              {
+                "fileTypes": [
+                  "Primary"
+                ],
+                "fragment": false,
+                "placeholder": false,
+                "empty": false,
+                "backside": false,
+                "attachment": false,
+                "rotation": 0.0,
+                "image": {
+                  "pageNumber": 0,
+                  "fileId": "0000.pdf"
+                }
+              },
+              {
+                "fileTypes": [
+                  "Primary"
+                ],
+                "fragment": false,
+                "placeholder": false,
+                "empty": false,
+                "backside": false,
+                "attachment": false,
+                "rotation": 0.0,
+                "image": {
+                  "pageNumber": 1,
+                  "fileId": "0000.pdf"
+                }
+              }
+            ],
+            "id": "0000"
+          }
+        ],
+        "id": "NONE"
+      }
+    ],
+    "priority": 5,
+    "category": "Default",
+    "subsystem": "1055600_Clark",
+    "id": "fcc780c9"
+  }
+}

@@ -1,0 +1,935 @@
+# == Schema Information
+#
+# Table name: document_types
+#
+#  id          :integer          not null, primary key
+#  name        :string
+#  key         :string
+#  template    :string
+#  description :string
+#  extension   :string           default("pdf")
+#
+
+---
+reminder2:
+  name: 'Mandate reminder email #2'
+  key: reminder2
+  template: mandate_mailer/reminder2
+  description: This is the reminder email sent to a new customer that hasn't completed the mandate process.
+CUSTOMER:
+  name: 'Customer Upload'
+  key: CUSTOMER
+  template: ''
+  description: This is a document that has been uploaded by a customer.
+  extension: use_filename
+  authorized_customer_states:
+    - "mandate_customer"
+    - "self_service"
+    - "prospect"
+POLICY:
+  name: Versicherungsschein
+  key: POLICY
+  template: Versicherungsschein
+  description: link to confluence
+  authorized_customer_states:
+    - "mandate_customer"
+inactive_customer:
+  name: Inactive customer
+  key: inactive_customer
+  template: mandate_mailer/inactive_customer
+  description: 'Inactive customer email'
+greeting:
+  name: Greeting email
+  key: greeting
+  template: mandate_mailer/greeting
+  description: 'Greeting Mail Chain - #1'
+greeting3:
+  name: 'Greeting #3 email'
+  key: greeting3
+  template: mandate_mailer/greeting3
+  description: 'Greeting Mail Chain - #3'
+greeting4_demandcheck_done:
+  name: 'Greeting #4 email (demandcheck done)'
+  key: greeting4_demandcheck_done
+  template: mandate_mailer/greeting4_demandcheck_done
+  description: 'Greeting Mail Chain - #4 (Demandcheck done)'
+greeting4_only_gkv:
+  name: 'Greeting #4 email (only GKV Product)'
+  key: greeting4_only_gkv
+  template: mandate_mailer/greeting4_only_gkv
+  description: 'Greeting Mail Chain - #4 (only GKV Product)'
+greeting4_no_demandcheck_more_than_gkv:
+  name: 'Greeting #4 email (more than GKV and no demandcheck)'
+  key: greeting4_no_demandcheck_more_than_gkv
+  template: mandate_mailer/greeting4_no_demandcheck_more_than_gkv
+  description: 'Greeting Mail Chain - #4 (more than GKV Product and no demandcheck)'
+voucher_greeting:
+  name: Voucher Greeting email
+  key: voucher_greeting
+  template: mandate_mailer/voucher_greeting
+  description: 'Greeting Mail Chain - #1 (Voucher)'
+requested:
+  name: Requested email
+  key: requested
+  template: mandate_mailer/requested
+  description: This is the email sent to the customer after we have requested information
+    from the insurers.
+reminder:
+  name: Mandate reminder email
+  key: reminder
+  template: mandate_mailer/reminder
+  description: This is the reminder email sent to a new customer that hasn't completed
+    the mandate.
+product_updated:
+  name: Product updated email
+  key: product_updated
+  template: mandate_mailer/product_updated
+  description: This is the email sent to the customer when a product is updated.
+portfolio_completed:
+  name: Portfolio completed email
+  key: portfolio_completed
+  template: mandate_mailer/portfolio_completed
+  description: This is the email sent when the customer's portfolio is complete
+portfolio_in_progress:
+  name: Portfolio in progress email
+  key: portfolio_in_progress
+  template: mandate_mailer/portfolio_in_progress
+  description: This is the email sent when the customer's portfolio is in progress
+confirmation_reminder:
+  name: Confirmation Reminder
+  key: confirmation_reminder
+  template: mandate_mailer/confirmation_reminder
+  description: A reminder to the customer that the email needs to be confirmed
+reminder3:
+  name: 'Mandate reminder email #3'
+  key: reminder3
+  template: mandate_mailer/reminder3
+  description: This is the reminder email sent to a new customer that hasn't completed
+    the mandate process.
+questionnaire_completed:
+  name: 'Questionnaire completed email'
+  key: questionnaire_completed
+  template: mandate_mailer/questionnaire_completed
+  description: 'Questionnaire completed email'
+advice_reply_notification:
+  name: 'Advice reply notification email'
+  key: advice_reply_notification
+  template: mandate_mailer/advice_reply_notification
+  description: 'Advice reply notification email'
+nachtrag:
+  name: Nachtrag zum Versicherungsschein
+  key: nachtrag
+  template: ''
+  description: Nachtrag zum Versicherungsschein
+mandate:
+  name: MANDATE
+  key: mandate
+  template: pdf_generator/mandate_document
+  description: This is the document created when the customer completes wizard.
+mandate_biometric:
+  name: MANDATE with Biometric Data
+  key: mandate_biometric
+  template: ''
+  description: This is the document created when the customer completes wizard including biometric data.
+STAND:
+  name: Vertragsstand
+  key: STAND
+  template: ''
+  description: Vertragsstand, ähnlich zu einer Police, aber eher informativen Character
+BEITRAG:
+  name: Beitragsrechnung
+  key: BEITRAG
+  template: ''
+  description: Beitragsrechnung
+  authorized_customer_states:
+    - "mandate_customer"
+VOLLMACHT:
+  name: Vollmacht
+  key: VOLLMACHT
+  template: ''
+  description: Vollmacht des Kunden, z.B. bei Gesundheitsfragen
+ANTRAG:
+  name: Antrag
+  key: ANTRAG
+  template: ''
+  description: Anträge (Bei Neuabschluss oder Umdeckung), enthält viele persönliche
+    Information
+KUENDIGUNG:
+  name: Kündigungsbestätigung
+  key: KUENDIGUNG
+  template: ''
+  description: Kündigungsbestätigung Altprodukt
+UMFANG:
+  name: Versicherungsumfang
+  key: UMFANG
+  template: ''
+  description: Versicherungsumfang (Übersicht von Versicherer oder interne Aufstellung)
+SCHADEN:
+  name: Schaden
+  key: SCHADEN
+  template: ''
+  description: Schadendokumente
+TODOVIEW:
+  name: Bedarfscheck
+  key: TODOVIEW
+  template: ''
+  description: Bedarfscheck Ergebnis - TODO View
+general_insurance_conditions:
+  name: Allgemeine Versicherungsbedingungen
+  key: general_insurance_conditions
+  template: ''
+  description: Allgemeine Versicherungsbedingungen
+  authorized_customer_states:
+    - "mandate_customer"
+    - "prospect"
+    - "self_service"
+Produktinformationsblatt:
+  name: Produktinformationsblatt
+  key: Produktinformationsblatt
+  template: ''
+  description: Produktinformationsblatt
+  authorized_customer_states:
+    - "mandate_customer"
+    - "prospect"
+    - "self_service"
+specific_insurance_conditions:
+  name: Tarifbedingungen
+  key: specific_insurance_conditions
+  template: ''
+  description: Tarifbedingungen
+  authorized_customer_states:
+    - "mandate_customer"
+    - "prospect"
+    - "self_service"
+Anzeigepflicht:
+  name: Folgen einer Verletzung der gesetzlichen Anzeigepflicht
+  key: Anzeigepflicht
+  template: ''
+  description: Folgen einer Verletzung der gesetzlichen Anzeigepflicht
+  authorized_customer_states:
+    - "mandate_customer"
+    - "prospect"
+    - "self_service"
+product_terms_and_insurance_conditions:
+  name: Produktinformation & Bedingungen
+  key: product_terms_and_insurance_conditions
+  template: ''
+  description: Produktinformation & Bedingungen
+  authorized_customer_states:
+    - "mandate_customer"
+    - "prospect"
+    - "self_service"
+consultation_waives:
+  name: Verzicht auf Basis-Beratung
+  key: consultation_waives
+  template: ''
+  description: Verzicht auf Basis-Beratung
+  authorized_customer_states:
+    - "self_service"
+    - "prospect"
+smartphone_insurance_confirmation:
+  name: Smartphone Insurance Confirmation Mail
+  key: smartphone_insurance_confirmation
+  template: product_mailer/smartphone_insurance_confirmation_email
+  description: This mail is sent to the user when the insurance contract has been
+    bought
+smartphone_mandate_confirmation:
+  name: Smartphone Applied Confirmation
+  key: smartphone_mandate_confirmation
+  template: mandate_mailer/smartphone_mandate_confirmation
+  description: Sent when the user has applied for the smartphone
+notification_available:
+  name: Notify about Messages
+  key: notification_available
+  template: mandate_mailer/notification_available
+  description: Notifies a user via email that a new message is available
+iban_for_invitation_payout:
+  name: IBAN request for invidation
+  key: iban_for_invitation_payout
+  template: mandate_mailer/iban_for_invitation_payout
+  description: Mail requesting the IBAN from the customer so we can pay out invitation money
+demandcheck_thank_you:
+  name: Danke Email
+  key: demandcheck_thank_you
+  template: demandcheck_mailer/thank_you
+  description: Wenn der Kunde den Bedarfscheck abgeschlossen hat
+demandcheck_recommendations_ready:
+  name: TodoView
+  key: demandcheck_recommendations_ready
+  template: demandcheck_mailer/recommendations_ready
+  description: Wenn der Bedarfscheck für den Kunden verfügbar ist
+demandcheck_complete_reminder2:
+  name: Reminder 2
+  key: demandcheck_complete_reminder2
+  template: demandcheck_mailer/complete_reminder2
+  description: Questionnaire completed in parts, Reminder
+demandcheck_complete_reminder:
+  name: Reminder 1
+  key: demandcheck_complete_reminder
+  template: demandcheck_mailer/complete_reminder
+  description: Questionnaire completed in parts
+BERATUNGSDOKUMENTATION:
+  name: Beratungsdokumentation
+  key: BERATUNGSDOKUMENTATION
+  template: ''
+  description: Rechtlich erforderliche Dokumentation der Beratung
+inquiry_request:
+  name: Versicherungsanfrage
+  key: inquiry_request
+  template: inquiry_mailer/insurance_request
+  description: Anfrage an den Versicherer um Auskunt
+demandcheck_complete_reminder3:
+  name: 'Reminder #3'
+  key: demandcheck_complete_reminder3
+  template: demandcheck_mailer/complete_reminder3
+  description: Questionnaire completed in parts, Reminder
+demandcheck_rating_requested:
+  name: Rating Request
+  key: demandcheck_rating_requested
+  template: demandcheck_mailer/rating_request
+  description: Asks user to rate his experience with the demandcheck
+VGLUMDECK:
+  name: 'Vergleich: Umdeuckung'
+  key: VGLUMDECK
+  template: ''
+  description: Produktvergleich bei Umdeckung
+Nachb2:
+  name: Antragsnachbearbeitung an Versicherer
+  key: Nachb2
+  template: ''
+  description: Antragsnachbearbeitung an Versicherer
+Nachb1:
+  name: Antragsnachbearbeitung von Versicherer
+  key: Nachb1
+  template: ''
+  description: 'Antragsnachbearbeitung von Versicherer '
+vertragsinformation:
+  name: Allgemeine Informationen zum Vertrag
+  key: vertragsinformation
+  template: ''
+  description: Allgemeine Informationen zum Vertrag
+  authorized_customer_states:
+    - "mandate_customer"
+VGLNEU:
+  name: 'Vergleich: Neuabschluss'
+  key: VGLNEU
+  template: ''
+  description: Produktvergleich bei Neuabschluss
+revoke_pool:
+  name: '"Mandat entzogen"-Meldung an Pool'
+  key: revoke_pool
+  template: inquiry_mailer/revoke_pool
+  description: Meldung an Pool, dass das Mandat entzogen wurde
+revoke_fondsfinanz:
+  name: '"Mandat entzogen"-Meldung an FondsFinanz'
+  key: revoke_fondsfinanz
+  template: inquiry_mailer/revoke_fondsfinanz
+  description: Meldung an FondsFinanz, dass das Mandat entzogen wurde
+revoke_company:
+  name: '"Mandat entzogen"-Meldung an Versicherer'
+  key: revoke_company
+  template: inquiry_mailer/revoke_company
+  description: Meldung an Versicherer, dass das Mandat entzogen wurde
+revoke_insurer:
+  name: Entzug Maklervollmacht
+  key: revoke_insurer
+  template: inquiry_mailer/revoke_insurer
+  description: Entzug Maklervollmacht
+revoke_customer:
+  name: Revoke Customer
+  key: revoke_customer
+  template: mandate_mailer/revoke_customer
+  description: E-mail to be sent for revoking the customer
+revoke_not_accepted_customer:
+  name: Revoke Not Accepted Customer
+  key: revoke_not_accepted_customer
+  template: mandate_mailer/revoke_not_accepted_customer
+  description: E-mail to be sent for revoking not accepted customer
+revoke_partner_customer:
+  name: Revoke Partner Customer
+  key: revoke_partner_customer
+  template: mandate_mailer/revoke_partner_customer
+  description: E-mail to be sent for revoking partner customer
+revoke_n26_customer:
+  name: Revoke N26 Customer
+  key: revoke_n26_customer
+  template: mandate_mailer/revoke_n26_customer
+  description: E-mail to be sent for revoking N26 customer
+rate_clark:
+  name: Rate Clark
+  key: rate_clark
+  template: mandate_mailer/rate_clark
+  description: E-mail to be sent for Clark rating
+change_address_notification:
+  name: Change Address
+  key: change_address_notification
+  template: mandate_mailer/change_address_notification
+  description: E-mail to be sent for change address notification
+no_email_available_for_change_address_notification:
+  name: No Email For Change Address Notification
+  key: no_email_available_for_change_address_notification
+  template: mandate_mailer/no_email_available_for_change_address_notification
+  description: E-mail to be sent in case when change address notification impossible due to email absense
+customer_has_been_unsubscribed:
+  name: Customer Unsubscribed
+  key: customer_has_been_unsubscribed
+  template: mandate_mailer/customer_has_been_unsubscribed
+  description: E-mail to be sent because customer has unsubscribed
+company_reminder_inquiry:
+  name: Anfragen-Reminder an Versicherer
+  key: company_reminder_inquiry
+  template: inquiry_mailer/company_reminder_inquiry
+  description: Reminder an Versicherer, dass Anfragen unbeantwortet sind
+company_reminder_documents:
+  name: Dokumenten-Reminder an Versicherer
+  key: company_reminder_documents
+  template: inquiry_mailer/company_reminder_documents
+  description: Reminder an Versicherer, dass Dokumente fehlen
+offered_product_available:
+  name: Bestelltes Produkt verfügbar
+  key: offered_product_available
+  template: product_mailer/offered_product_available
+  description: Ein Produkt, das durch ein Angebot bestellt wurde, ist verfügbar
+advisory_documentation_available:
+  name: Beratungsdokumentation verfügbar
+  key: advisory_documentation_available
+  template: product_mailer/advisory_documentation_available
+  description: "Information an den Kunden, das eine Beratungsdokumentation angelegt wurde"
+offer_available_top_price:
+  name: Angebot verfügbar (Sparangebot empfohlen)
+  key: offer_available_top_price
+  template: offer_mailer/offer_available_top_price
+  description: Angebot mit empfohlenem Sparangebot
+offer_available_top_cover:
+  name: Angebot verfügbar (Top-Leistung empfohlen)
+  key: offer_available_top_cover
+  template: offer_mailer/offer_available_top_cover
+  description: Angebot mit empfohlener Top-Leistung
+offer_available_top_cover_and_price:
+  name: Angebot verfügbar (Top-Preis-Leistung)
+  key: offer_available_top_cover_and_price
+  template: offer_mailer/offer_available_top_cover_and_price
+  description: Angebot mit empfohlener Top-Preis-Leistung
+new_product_offer_available:
+  name: Angebot für Neuabschluss
+  key: new_product_offer_avaiable
+  template: offer_mailer/new_product_offer_available
+  description: Angebot für Neuabschluss
+offer_reminder1:
+  name: 'Angebots-Erinnerung #1'
+  key: offer_reminder1
+  template: offer_mailer/offer_reminder1
+  description: Erste Erinnerung
+offer_reminder2:
+  name: 'Angebots-Erinnerung #2'
+  key: offer_reminder2
+  template: offer_mailer/offer_reminder2
+  description: Zweite Erinnerung
+offer_reminder3:
+  name: 'Angebots-Erinnerung #3'
+  key: offer_reminder3
+  template: offer_mailer/offer_reminder3
+  description: Dritte Erinnerung
+offer_appointment_request:
+  name: 'Anfrage: Termin wegen angenommenem Angebot'
+  key: offer_appointment_request
+  template: offer_mailer/offer_appointment_request
+  description: Kunde möchte über den Abschluss eines Produktes reden
+offer_appointment_confirmation_phone_call:
+  name: Terminbestätigung (Anruf)
+  key: offer_appointment_confirmation_phone_call
+  template: offer_mailer/offer_appointment_confirmation_phone_call
+  description: Terminbestätigung (Anruf) an den Kunden
+offer_appointment_confirmation_video_call:
+  name: Terminbestätigung (Video-Anruf)
+  key: offer_appointment_confirmation_video_call
+  template: offer_mailer/offer_appointment_confirmation_video_call
+  description: Terminbestätigung (Video-Anruf) an den Kunden
+offer_thank_you:
+  name: 'Dankesmail: Angebot'
+  key: offer_thank_you
+  template: offer_mailer/offer_thank_you
+  description: Dankesmail an den Kunden, dass er ein Angebot angenommen hat
+offer_request_iban:
+  name: 'Anfrage: IBAN'
+  key: offer_request_iban
+  template: offer_mailer/offer_request_iban
+  description: Kunde hat Produkt angenommen aber keine IBAN angegeben
+deckungsnote:
+  name: Deckungsnote
+  key: deckungsnote
+  template: pdf_generator/cover_note_document
+  description: Antrag an die Versicherung für einen Vertragsschlusse eines definierten Versicherungsschutzes
+deckungsnote_message:
+  name: Deckungsnote Versicherer
+  key: Deckungsnote Versicherer
+  description: Deckungsnote die an den Versicherer gesendet wird
+dental_insurance:
+  name: 'Dental Insurance Automation'
+  key: message_to_questionnaire_dental_insurance
+  template: message_to_questionnaire_mailer/dental_insurance"
+  description: 'E-mail to be sent to Dental Insurance Automation'
+  extension: 'pdf'
+demand_check_old:
+  name: 'Demandcheck OLD'
+  key: message_to_questionnaire_demandcheck_old
+  template: message_to_questionnaire_mailer/demand_old_rule
+  description: 'E-mail to be sent to DemandCheck OLD answers Automation'
+  extension: 'pdf'
+demand_check_never:
+  name: 'Demandcheck NEVER'
+  key: message_to_questionnaire_demandcheck_never
+  template: message_to_questionnaire_mailer/demand_never_rule
+  description: 'E-mail to be sent to DemandCheck NEVER answers Automation'
+  extension: 'pdf'
+disability_insurance:
+  name: 'Disability Insurance'
+  key: message_to_questionnaire_disability_insurance
+  template: message_to_questionnaire_mailer/disability_insurance_rule
+  description: 'E-mail to be sent to Disability Insurance Automation'
+  extension: 'pdf'
+og_riester_1_insurance:
+  name: 'og_riester_1_insurance'
+  key: message_to_questionnaire_mailer-og_riester_1_insurance
+  template: message_to_questionnaire_mailer/og_riester_1_insurance
+  description: 'E-mail to be sent on Riester automation'
+  extension: 'pdf'
+og_product_contract_end_blacklist:
+  name: og_product_contract_end_blacklist
+  key: message_to_questionnaire_mailer-og_product_contract_end_blacklist
+  template: message_to_questionnaire_mailer/og_product_contract_end_blacklist
+  description: E-mail to be sent on Riester automation
+  extension: 'pdf'
+dental_insurance:
+  name: Dental Insurance Automation
+  key: message_to_questionnaire_dental_insurance
+  template: message_to_questionnaire_mailer/dental_insurance
+  description: E-mail to be sent to Dental Insurance Automation
+og_blacklisted_legal_protection:
+  name: Legal protection blacklisted
+  key: og_blacklisted_legal_protection
+  template: message_to_questionnaire_mailer/og_blacklisted_legal_protection
+  description: E-mail to be sent for og_blacklisted_legal_protection
+og_blacklisted_phv:
+  name: PHV blacklisted
+  key: og_blacklisted_legal_protection
+  template: message_to_questionnaire_mailer/og_blacklisted_phv
+  description: E-mail to be sent for og_blacklisted_phv
+request_corrections:
+  name: Request Corrections
+  key: request_corrections
+  template: mandate_mailer/request_corrections
+  description: E-mail to be sent for requesting the corrections
+nps_questioning_score:
+  name: NPS questionning
+  key: nps_questioning_score
+  template: mandate_mailer/nps_questioning_score
+  description: E-mail to be sent for requesting score
+comparison_request:
+  name: comparison_request
+  key: comparison_request
+  template: ''
+  description: XML SOAP request sent to a remote comparison service
+  extension: xml
+comparison_response:
+  name: comparison_response
+  key: comparison_response
+  template: ''
+  description: XML SOAP response returned from a remote comparison service
+  extension: xml
+crediting_email:
+  name: Mam Mailer
+  key: mam_mailer-crediting_email
+  template: mam_mailer/crediting_email
+  description: Miles and More crediting email
+points_unlocked:
+  name: Payback Mailer
+  key: payback_mailer-points_unlocked
+  template: payback_mailer/points_unlocked
+  description: Payback points unlocked email
+add_payback_number_reminder:
+  name: add_payback_number_reminder
+  key: payback_mailer-add_payback_number_reminder
+  template: payback_mailer/add_payback_number_reminder
+  description: Add payback number reminder
+payback_inquiries_reminder:
+  name: inquiries_reminder
+  key: payback_mailer-inquiries_reminder
+  template: payback_mailer/inquiries_reminder
+  description: Reminding customer to upload a document and add other insurances
+payback_inquiry_complete_reminder:
+  name: inquiry_complete_reminder
+  key: payback_mailer-inquiry_complete_reminder
+  template: payback_mailer/inquiry_complete_reminder
+  description: Payback inquiry completion reminder
+payback_transaction_refunded:
+  name: transaction_refunded
+  key: payback_mailer-transaction_refunded
+  template: payback_mailer/transaction_refunded
+  description: Payback transaction refunded for inquiry
+payback_inquiry_category_added:
+  name: inquiry_category_added
+  key: payback_mailer-inquiry_category_added
+  template: payback_mailer/inquiry_category_added
+  description: Inquiry category added
+n26_migration_instructions:
+  name: migration_instructions
+  key: n26_mailer-migration_instructions
+  template: n26_mailer/migration_instructions
+  description: Migration instructions email
+n26_migration_welcome:
+  name: migration_welcome
+  key: n26_mailer-migration_welcome
+  template: n26_mailer/migration_welcome
+  description: Migration welcome email
+n26_migration_reminder:
+  name: migration_reminder
+  key: n26_mailer-migration_reminder
+  template: n26_mailer/migration_reminder
+  description: Migration reminder email
+fonds_finanz_excel:
+  name: FondsFinanz Excel
+  key: fonds_finanz_excel
+  template: ''
+  description: FondsFinanz Microsoft Excel file
+  extension: xlsx
+ANGEBOTSPRAESENTATION:
+  name: Angebotspraesentation
+  key: ANGEBOTSPRAESENTATION
+  template: ''
+  description: Offer presentation
+PRODUKTANTRAG:
+  name: Produktantrag
+  key: PRODUKTANTRAG
+  template: ''
+  description: Product application
+ing_iban_reminder:
+  name: ing_iban_reminder
+  key: mandate_mailer-ing_iban_reminder
+  template: mandate_mailer/ing_iban_reminder
+  description: ING Diba IBAN Reminder Email
+greeting_mam:
+  name: greeting_mam
+  key: mandate_mailer-greeting_mam
+  template: mandate_mailer/greeting_mam
+  description: MAM Greeting email
+greeting_payback:
+  name: greeting_payback
+  key: mandate_mailer-greeting_payback
+  template: mandate_mailer/greeting_payback
+  description: Payback Greeting email
+greeting_1822direkt:
+  name: greeting_1822direkt
+  key: mandate_mailer-greeting_1822direkt
+  template: mandate_mailer/greeting_1822direkt
+  description: 1822direkt Greeting email
+greeting_primoco:
+  name: greeting_primoco
+  key: mandate_mailer-greeting_primoco
+  template: mandate_mailer/greeting_primoco
+  description: Primoco Greeting email
+portfolio_in_progress_4weeks:
+  name: portfolio_in_progress_4weeks
+  key: mandate_mailer-portfolio_in_progress_4weeks
+  template: mandate_mailer/portfolio_in_progress_4weeks
+  description: Portfolio in progress 4 weeks
+portfolio_in_progress_16weeks:
+  name: portfolio_in_progress_16weeks
+  key: mandate_mailer-portfolio_in_progress_16weeks
+  template: mandate_mailer/portfolio_in_progress_16weeks
+  description: Portfolio in progress 16 weeks
+placeholder_reminder:
+  name: placeholder_reminder
+  key: mandate_mailer-placeholder_reminder
+  template: mandate_mailer/placeholder_reminder
+  description: Placeholder Reminder
+csv:
+  name: CSV
+  key: csv
+  template: ''
+  description: Comma separated values file
+  extension: csv
+gkv_appointment_confirmation_email:
+  name: gkv_appointment_confirmation_email
+  key: service_mailer-gkv_appointment_confirmation_email
+  template: service_mailer/gkv_appointment_confirmation_email
+  description: Appointment Confirmation Email
+inquiry_category_cancelled:
+  name: inquiry_category_cancelled
+  key: mandate_mailer-inquiry_category_cancelled
+  template: mandate_mailer/inquiry_category_cancelled
+  description: Wichtige Information zu deinem Vertrag
+  extension: pdf
+og_bu_candidates_missed_by_recommendation_builder:
+  name: og_bu_candidates_missed_by_recommendation_builder
+  key: message_to_questionnaire_mailer-og_bu_candidates_missed_by_recommendation_builder
+  template: message_to_questionnaire_mailer/og_bu_candidates_missed_by_recommendation_builder
+  description: Single sent mail due to recommendation builder bug
+  extension: pdf
+reminder_1:
+  name: reminder_1
+  key: advice_mailer-reminder_1
+  template: advice_mailer/reminder_1
+  description: Advice reminder after 14 days
+reminder_advice_35_days:
+  name: reminder_advice_35_days
+  key: advice_mailer-reminder_advice_35_days
+  template: advice_mailer/reminder_advice_35_days
+  description: Advice Reminder 35 days
+important_documents_notification:
+  name: important_documents_notification_email
+  key: document_mailer-important_documents_notification
+  template: document_mailer/important_documents_notification
+  description: Informational mail to the customer after upload of important documents
+  extension: pdf
+warning_letter:
+  name: Mahnschreiben
+  key: warning_letter
+  description: Warning letter due to pending payment
+  extension: pdf
+certificate:
+  name: Bescheinigungen
+  key: BESCHEINIGUNG
+  description: Auslandsreisebescheinigung, Arbeitgeberbescheinigung, Steuerbescheinigung
+  extension: pdf
+reminder_reoccuring_advice_2_days:
+  name: reminder_reoccuring_advice_2_days
+  key: advice_mailer-reminder_reoccuring_advice_2_days
+  template: advice_mailer/reminder_reoccuring_advice_2_days
+  description: Reocurring Advice Reminder 2 days
+reminder_reoccuring_advice_5_day:
+  name: reminder_reoccuring_advice_5_day
+  key: advice_mailer-reminder_reoccuring_advice_5_day
+  template: advice_mailer/reminder_reoccuring_advice_5_day
+  description: Reocurring Advice Reminder 5 day
+invite:
+  name: invite
+  key: invitation_mailer-invite
+  template: invitation_mailer/invite
+  description: Deine Einladung zu Clark!
+  extension: pdf
+offer_documents:
+  name: offer_documents
+  key: offer_mailer-offer_documents
+  template: offer_mailer/offer_documents
+  description: Angebotsdokumente
+  extension: pdf
+clark_greeting:
+  name: "clark_greeting"
+  key: malburg_mailer-clark_greeting
+  template: malburg_mailer/clark_greeting
+  description: Malburg greeting email
+fb_malburg_greeting:
+  name: "fb_malburg_greeting"
+  key: malburg_mailer-fb_malburg_greeting
+  template: malburg_mailer/fb_malburg_greeting
+  description: Facebook Malburg greeting email
+inquiry_categories_timed_out:
+  name: inquiry_categories_timed_out
+  key: "inquiry_category_mailer-inquiry_categories_timed_out"
+  template: "inquiry_category_mailer/inquiry_categories_timed_out"
+  description: "Wichtiges Update zu deiner %{category_name} - Clark"
+  extension: pdf
+direkt_bank_iban_reminder:
+  name: direkt_bank_iban_reminder
+  key: mandate_mailer-direkt_bank_iban_reminder
+  template: mandate_mailer/direkt_bank_iban_reminder
+  description: 1822direkt IBAN Reminder Email
+raffle_confirmation:
+  name: raffle_confirmation
+  key: mandate_mailer-raffle_confirmation
+  template: mandate_mailer/raffle_confirmation
+  description: raffle confirmation
+kfz_switching:
+  name: kfz_switching
+  key: mandate_mailer-kfz_switching
+  template: mandate_mailer/kfz_switching
+  description: Kfz Switching campaign
+retirement_onboarding_group1:
+  name: retirement_onboarding_group1
+  key: mandate_mailer-retirement_onboarding_group1
+  template: mandate_mailer/retirement_onboarding_group1
+  description: Onboarding retirement customers
+retirement_onboarding_group2:
+  name: retirement_onboarding_group2
+  key: mandate_mailer-retirement_onboarding_group2
+  template: mandate_mailer/retirement_onboarding_group2
+  description: Onboarding retirement customers
+retirement_onboarding_group3:
+  name: retirement_onboarding_group3
+  key: mandate_mailer-retirement_onboarding_group3
+  template: mandate_mailer/retirement_onboarding_group3
+  description: Onboarding retirement customers
+retirement_product_analysed:
+  name: retirement_product_analysed
+  key: retirement_product_mailer-retirement_product_analysed
+  template: retirement_product_mailer/retirement_product_analysed
+  description: Retirement product available
+information_required:
+  name: information_required
+  key: retirement_product_mailer-information_required
+  template: retirement_product_mailer/information_required
+  description: Retirement information required
+changed_address_confirmation:
+  name: changed_address_confirmation
+  key: mandate_mailer-changed_address_confirmation
+  template: mandate_mailer/changed_address_confirmation
+  description: changed_address_confirmation
+no_email_available_for_suhk_product_termination:
+  name: no_email_available_for_suhk_product_termination
+  key: product_mailer-no_email_available_for_suhk_product_termination
+  template: product_mailer/no_email_available_for_suhk_product_termination
+  description: no_email_available_for_suhk_product_termination
+suhk_product_termination:
+  name: suhk_product_termination
+  key: product_mailer-suhk_product_termination
+  template: product_mailer/suhk_product_termination
+  description: suhk_product_termination
+general_insurance_conditions_notification:
+  name: general_insurance_conditions_notification
+  key: document_mailer-general_insurance_conditions_notification
+  template: document_mailer/general_insurance_conditions_notification
+  description: General insurance conditions
+product_application_fully_signed:
+  name: product_application_fully_signed
+  key: document_mailer-product_application_fully_signed
+  template: document_mailer/product_application_fully_signed
+  description: Product application fully signed
+inquiry_categories_cancelled:
+  name: inquiry_categories_cancelled
+  key: inquiry_category_mailer-inquiry_categories_cancelled
+  template: inquiry_category_mailer/inquiry_categories_cancelled
+  description: Wichtige Information zu deinem Vertrag / deinen Verträgen
+no_product_can_be_created:
+  name: no_product_can_be_created
+  key: inquiry_category_mailer-no_product_can_be_created
+  template: inquiry_category_mailer/no_product_can_be_created
+  description: Dein Foto-Upload
+num_one_reccommendation_day_five:
+  name: num_one_reccommendation_day_five
+  key: recommendation_mailer-num_one_reccommendation_day_five
+  template: recommendation_mailer/num_one_reccommendation_day_five
+  description: Deine Empfehlung läuft bald ab - Clark
+num_one_reccommendation_day_one:
+  name: num_one_reccommendation_day_one
+  key: recommendation_mailer-num_one_reccommendation_day_one
+  template: recommendation_mailer/num_one_reccommendation_day_one
+  description: Das Ergebnis deiner Bedarfsanalyse ist da - Clark
+num_one_reccommendation_day_two:
+  name: num_one_reccommendation_day_two
+  key: recommendation_mailer-num_one_reccommendation_day_two
+  template: recommendation_mailer/num_one_reccommendation_day_two
+  description: Deine Empfehlung wartet auf dich - Clark
+request_document_reupload:
+  name: request_document_reupload
+  key: product_mailer-request_document_reupload
+  template: product_mailer/request_document_reupload
+  description: Reupload document
+communikom_greeting:
+  name: "communikom_greeting"
+  key: communikom_mailer-communikom_greeting
+  template: communikom_mailer/communikom_greeting
+  description: Communikom greeting email
+zvo_greeting:
+  name: "zvo_greeting"
+  key: zvo_mailer-zvo_greeting
+  template: zvo_mailer/zvo_greeting
+  description: Zvo greeting email
+partner_greeting:
+  name: "partner_greeting"
+  key: partner_mailer-partner_greeting
+  template: partner_mailer/partner_greeting
+  description: Partner greeting email
+reset_password:
+  name: reset_password
+  key: account_mailer-reset_password
+  template: account_mailer/reset_password
+  description: Reset password mail
+direct_sales_sale:
+  name: direct_sales_sale
+  key: direct_sales_sale
+  template: service_mailer/direct_sales_sale
+  description: Direct Sales sale information for our agents
+insurance_purchase_confirmation:
+  name: insurance_purchase_confirmation
+  key: insurance_purchase_confirmation
+  template: direct_sales_mailer/insurance_purchase_confirmation
+  description: Insurance purchase confirmation email
+fonds_finanz_accounting_report:
+  name: fonds_finanz_accounting_report
+  key: fonds_finanz_accounting_report
+  template: fonds_finanz_accounting_report/insurance_purchase_confirmation
+  description: Accounting report xsls for FondsFinanz
+  extension: xlsx
+request_correction:
+  name: request_correction
+  key: contract_mailer-request_correction
+  template: contract_mailer/request_correction
+  description: "[%{category_name}] Dein Fotoupload"
+  extension: pdf
+notify_contract_cancellation:
+  name: notify_contract_cancellation
+  key: contract_mailer-notify_contract_cancellation
+  template: contract_mailer/notify_contract_cancellation
+  description: "Kündigungsfrist deiner %{category_name}"
+  extension: pdf
+notify_contract_cancellation_general_sold_by_us_known_end_date:
+  name: notify_contract_cancellation_general_sold_by_us_known_end_date
+  key: contract_mailer-notify_contract_cancellation_general_sold_by_us_known_end_date
+  template: contract_mailer/notify_contract_cancellation_general_sold_by_us_known_end_date
+  description: "Erinnerung: Die Kündigungsfrist deiner %{category_name} läuft bald ab"
+  extension: pdf
+notify_contract_cancellation_general_sold_by_us_unknown_end_date:
+  name: notify_contract_cancellation_general_sold_by_us_unknown_end_date
+  key: contract_mailer-notify_contract_cancellation_general_sold_by_us_unknown_end_date
+  template: contract_mailer/notify_contract_cancellation_general_sold_by_us_unknown_end_date
+  description: "Die Kündigungsfrist deiner %{category_name} könnte bald ablaufen"
+  extension: pdf
+vvg_information_package:
+  name: VVG-Informationspaket
+  key: VVG_information_package
+  template: ''
+  description: Dokumentensammlung inkl. Produktinformationsblatt, Bedingungen und Antrag.
+  authorized_customer_states:
+    - "mandate_customer"
+    - self_service
+supporting_offer_documents:
+  name: Weitere_Angebotsinformationen
+  key: Supporting_offer_documents
+  template: ''
+  description: Unterstützende Angebotsinformationen wie etwa Testberichte oder Fachartikel.
+  authorized_customer_states:
+    - "mandate_customer"
+    - "self_service"
+appointment_confirmation_email:
+  name: appointment_confirmation
+  key: appointment_mailer-appointment_confirmation
+  template: 'appointment_mailer/appointment_confirmation'
+  description: Appointment confirmation email
+  authorized_customer_states:
+    - "mandate_customer"
+    - "self_service"
+notify_contract_cancellation_general_sold_by_others_known_end_date:
+  name: notify_contract_cancellation_general_sold_by_others_known_end_date
+  key: contract_mailer-notify_contract_cancellation_general_sold_by_others_known_end_date
+  template: contract_mailer/notify_contract_cancellation_general_sold_by_others_known_end_date
+  description: "⏰ Erinnerung: Die Kündigungsfrist deiner %{category_name} läuft bald ab"
+  extension: pdf
+notify_contract_cancellation_general_sold_by_others_unknown_end_date:
+  name: notify_contract_cancellation_general_sold_by_others_unknown_end_date
+  key: contract_mailer-notify_contract_cancellation_general_sold_by_others_unknown_end_date
+  template: contract_mailer/notify_contract_cancellation_general_sold_by_others_unknown_end_date
+  description: "⏰ Die Kündigungsfrist deiner %{category_name} könnte bald ablaufen"
+  extension: pdf
+kfz_contract_cancellation_best_direct_insurer_known_end_date:
+  name: kfz_contract_cancellation_best_direct_insurer_known_end_date
+  key: contract_mailer-kfz_contract_cancellation_best_direct_insurer_known_end_date
+  template: contract_mailer/kfz_contract_cancellation_best_direct_insurer_known_end_date
+  description: "⏰ Erinnerung: Die Kündigungsfrist deiner %{category_name} läuft bald ab"
+  extension: pdf
+kfz_contract_cancellation_best_direct_insurer_unknown_end_date:
+  name: kfz_contract_cancellation_best_direct_insurer_unknown_end_date
+  key: contract_mailer-kfz_contract_cancellation_best_direct_insurer_unknown_end_date
+  template: contract_mailer/kfz_contract_cancellation_best_direct_insurer_unknown_end_date
+  description: "⏰ Erinnerung: Die Kündigungsfrist deiner %{category_name} läuft bald ab"
+  extension: pdf

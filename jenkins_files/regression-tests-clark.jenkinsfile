@@ -1,0 +1,21 @@
+library ('base')
+
+regressionTestsPipeline(brand: 'Clark',
+                        cron: '@midnight',
+                        testSuite: 'features/gherkin_scenarios/clark',
+                        stagingsArr: ["https://staging.clark.de",
+                                      "https://staging-test-2.clark.de",
+                                      "https://staging-test-3.clark.de",
+                                      "https://staging-test-4.clark.de",
+                                      "https://staging-test-6.clark.de",
+                                      "https://staging-test-9.clark.de",
+                                      "https://staging-test-10.clark.de",
+                                      "https://staging-test-12.clark.de",
+                                      "https://staging-test-13.clark.de",
+                                      "https://staging-test-14.clark.de",
+                                      "https://staging-test-15.clark.de",
+                                      "https://staging-test-16.clark.de",
+                                      "https://staging-test-17.clark.de",
+                                      "https://staging-test-18.clark.de"],
+                        kubernetesYAMLFile: '.jenkins/regression-pod.yaml'
+                        )

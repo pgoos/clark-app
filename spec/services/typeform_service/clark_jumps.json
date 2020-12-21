@@ -1,0 +1,43 @@
+{
+  "jumps": [
+    {
+      "conditions": [
+        {
+          "field": "yesno_13492188",
+          "value": "1"
+        }
+      ],
+      "destination": {
+        "id": "textarea_13492191"
+      }
+    },
+    {
+      "conditions": [
+        {
+          "field": "yesno_13492188",
+          "value": "0"
+        }
+      ],
+      "destination": {
+        "id": "textarea_13492192"
+      }
+    }
+  ],
+  "multiple-choice": {
+    "choices": [
+      {
+        "label": "Ja",
+        "value": "1",
+        "position": 0,
+        "selected": false
+      },
+      {
+        "label": "Nein",
+        "value": "0",
+        "position": 1,
+        "selected": false
+      }
+    ],
+    "multiple": false
+  }
+}

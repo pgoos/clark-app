@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://poc-api-test.insiders.cloud/1/rest/tasks/lock
+    body:
+      encoding: UTF-8
+      string: '{"system":"ExporterServer1","filter":{"state":"Supervisor"}}'
+    headers:
+      Authorization:
+      - Bearer token
+      Connection:
+      - close
+      User-Agent:
+      - http.rb/4.0.0
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Cache-Control:
+      - private
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/xml; charset=utf-8
+      Server:
+      - ''
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Date:
+      - Tue, 30 Oct 2018 15:50:06 GMT
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: 'null'
+    http_version: 
+  recorded_at: Tue, 30 Oct 2018 15:50:01 GMT
+recorded_with: VCR 4.0.0

@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "inquiry_category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "mandate_id": {
+          "type": "integer"
+        },
+        "inquiry_id": {
+          "type": "integer"
+        },
+        "company_ident": {
+          "type": "string"
+        },
+        "category_ident": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "deleted_by_customer": {
+          "type": "boolean",
+          "values": [true, false]
+        },
+        "cancellation_cause": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            },
+            "translations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

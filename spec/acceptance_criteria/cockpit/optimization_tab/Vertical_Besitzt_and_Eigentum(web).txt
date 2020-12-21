@@ -1,0 +1,37 @@
+Vertical Besitzt and Eigentum #Web#
+
+User logged in
+User lands to cockpit
+When clicks at Bedarfcheck Starten button
+At the end of the Bedarfscheck user see a screen having text 'Geschafft! Willkommen ub deinem versicherungscockpit'
+And user clicks the button jetzt zu deinem Ergebnis
+Verify in new screen the three rings Green for Bsitz nad Eigentum, a pink ring around green for Gesundheit & Existenz and  Blue ring for Altervorsorge
+User see a text 'Geschafft! Willkommen ub deinem versicherungscockpit'
+Verfiy no. of green splits in the ring means no. of insurances user have from this life aspect
+Verify within the ring the life aspect score of total no. insurances must have by current insurances is displayed in numbers
+Verify priority rating representing how important is this life aspect to user
+
+#old demand check no priority#
+Verify clicking at Jetzt wahlen button at details screen, opens a new screen where user can select on a priority scale from sehr unwichtig to sehr wichtig range
+Verify clicing at Bestatigen button takes user back to the information screen
+
+#continuing Verify the percentage of strongly insured clark users under this life aspect
+Verify the three columns at optimization screen with each life aspect
+Verify in each respective column recommended insurances are available for optimization of each life aspect
+Verify the listed options for optimization have tags 'sehr wichtig', 'wichtig','Sinnvoll'
+Verify a link below the possible inusurance for optimization saying 'Deien Lebensituation hat sich Verändert? Kein Problem! Jetzt Aktulisieren'
+
+#information on i clickable
+Verify i icon representing information in each column
+Verify When user clicks at i icon a new screen about Besitzt and Eigentum opens
+Verify the new screen has information about the ring
+Verify user can expand the information on ring to read the text
+
+Verify the new screen has information about the percentage
+Verify user can expand the information about percentage to read the text
+
+Verify new screen shows the importance of the aspect for you as priority
+Verify user can expand the information on importance of priority to read the text
+
+Verify user can click at cross button at the top of screen to close the screen
+Verify user can land to the screen with rings

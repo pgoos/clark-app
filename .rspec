@@ -1,0 +1,4 @@
+--color
+--require spec_helper
+<% local_file = "./.rspec.local" %>
+<%= File.read(local_file) if File.exist?(local_file) %>

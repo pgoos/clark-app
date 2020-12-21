@@ -1,0 +1,1797 @@
+#
+# We track number of successfully ran jobs in master-watcher-app,
+# if number of succeed jobs reached the defined number, we send a notification
+# on slack. it is defined by NUMBER_OF_CHECKS_ON_TAGS variable in master-watcher-app.
+# if you add or delete a job here, need to adjust that variable too.
+#
+
+defaults: &defaults
+  working_directory: ~/code
+  docker:
+    - image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/clark-ci:1.1.0
+      aws_auth:
+        aws_access_key_id: $AWS_ACCESS_KEY_ID
+        aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+      environment:
+        BUNDLE_JOBS: 3
+        BUNDLE_RETRY: 3
+        BUNDLE_PATH: vendor/bundle
+        BUNDLE_BIN: bin
+        PGHOST: 127.0.0.1
+        PGUSER: circle
+        RAILS_ENV: test
+        WKHTMLTOPDF: '/usr/local/bin/wkhtmltopdf'
+        CHROMEDRIVER_BINARY: '/usr/local/bin/chromedriver'
+    - image: circleci/postgres:11.8-ram
+      environment:
+        POSTGRES_DB: optisure_test
+        POSTGRES_USER: circle
+        POSTGRES_PASSWORD: circle
+
+lean_defaults: &lean_defaults
+  working_directory: ~/code
+  docker:
+    - image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/clark-ci:1.1.0
+      aws_auth:
+        aws_access_key_id: $AWS_ACCESS_KEY_ID
+        aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
+      environment:
+        BUNDLE_JOBS: 3
+        BUNDLE_RETRY: 3
+        BUNDLE_PATH: vendor/bundle
+        BUNDLE_BIN: bin
+        RAILS_ENV: test
+
+tags_only: &tags_only
+  tags:
+    only: /^\d+\.\d+$/
+
+run_on_all_branches: &run_on_all_branches
+  filters:
+    tags:
+      only: /^\d+\.\d+$/
+
+run_on_master_branch: &run_on_master_branch
+  filters:
+    tags:
+      only: /^\d+\.\d+$/
+    branches:
+      only: master
+
+run_only_on_tagged_version: &run_only_on_tagged_version
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^\d+\.\d+$/
+
+run_only_when_backend_files_changed: &run_only_when_backend_files_changed
+  run:
+    name: Skip if no BE code has been changed
+    command: |
+      # Skip the check if current commit is a tag.
+      if [[ $(git describe --exact-match HEAD 2>/dev/null) ]]; then
+        exit 0
+      fi
+
+      # For master branch take into account files within one last commit. For others
+      # take into account all files between HEAD and master branch.
+      if [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+        REF_TO="HEAD~1"
+      else
+        REF_TO="origin/master"
+      fi
+
+      # Successfully finish the job if no BE files have been changed within
+      # given period.
+      if [[ -z $(git diff --name-only $REF_TO... | grep -vE "^client|^yarn.lock|^package.json|^lerna.json") ]]; then
+        circleci-agent step halt
+      fi
+
+install_allure_report: &install_allure_report
+  - run:
+      type: shell
+      name: Install allure report
+      command: |
+        # Allure archive download
+        curl -L https://github.com/allure-framework/allure2/releases/download/2.13.1/allure-commandline-2.13.1.zip -o \
+        /tmp/allure.zip
+
+        # Archive extraction
+        unzip /tmp/allure.zip
+
+        # Allure installation
+        sudo mv allure-2.13.1 /usr/local/share/allure
+
+        # Allure binary symlinking
+        sudo ln -s /usr/local/share/allure/bin/allure /usr/local/bin/allure
+
+allure_report: &allure_report
+  - run:
+      name: Allure report generation
+      when: always
+      command: |
+        allure generate \
+        --config /usr/local/share/allure/config/allure.yml \
+        --report-dir tmp/smoke_tests/allure_report allure-results
+
+install_proxy: &install_proxy
+  - type: shell
+    name: Install proxy
+    command: |
+      if [ "$USE_PROXY" == true ]
+          then
+              echo USE_PROXY = $USE_PROXY, setting up server proxy binary
+              wget -nc https://github.com/browserup/browserup-proxy/releases/download/v2.1.1/browserup-proxy-2.1.1-SNAPSHOT.tar
+              tar xopf browserup-proxy-2.1.1-SNAPSHOT.tar
+          else
+              echo USE_PROXY = $USE_PROXY, proceeding without proxy ...
+      fi
+
+store_screenshot: &store_screenshot
+  - store_artifacts:
+      path: tmp/smoke_tests/failure_screenshots
+      destination: screenshots
+      when: on_fail
+
+store_js_log: &store_js_log
+  - store_artifacts:
+      path: tmp/smoke_tests/console_logs/js_errors.log
+      destination: logs
+      when: always
+
+store_har_log: &store_har_log
+  - store_artifacts:
+      path: tmp/smoke_tests/har_files
+      destination: logs
+      when: always
+
+store_allure_report: &store_allure_report
+  - store_artifacts:
+      path: tmp/smoke_tests/allure_report
+      destination: allure_report
+      when: always
+
+version: 2
+
+jobs:
+  setup:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run:
+          name: Add db config
+          command: mv config/database.yml.circle config/database.yml
+
+      # Restore bundle cache
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Bundle Install
+          command: bundle install --path vendor/bundle
+
+      - type: cache-save
+        name: Store bundle cache
+        key: gems-v1-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      # Restore npm cache
+      - type: cache-restore
+        name: Restore npm modules
+        keys:
+          - yarn-v3-{{ checksum "yarn.lock" }}-{{ arch }}
+
+      - run:
+          name: Install yarn modules
+          command: yarn bootstrap
+
+      - type: cache-save
+        name: Store npm modules
+        key: yarn-v3-{{ checksum "yarn.lock" }}-{{ arch }}
+        paths:
+          - './node_modules'
+          - './client/node_modules'
+          - './client-ops/offer-rule-matrix/node_modules'
+          - ~/.cache/yarn
+
+      # Restore sprockets cache
+      - type: cache-restore
+        name: Restore sprockets cached assets
+        keys:
+          - sprockets-{{ checksum "config/initializers/version.rb" }}
+
+      # DB
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - run:
+          name: Rails Setup All in One
+          command: |
+            rm db/cms_fixtures/clark/de/files/*
+            bundle exec rake db:create db:structure:load db:migrate --trace test:prepare app:uglify assets:precompile test:prepare
+            mkdir -p results/{junit,rspec}
+
+      # Store sprockets cache
+      - type: cache-save
+        name: Store sprockets assets cache
+        key: sprockets-{{ checksum "config/initializers/version.rb" }}
+        paths:
+          - 'tmp/cache/assets/sprockets'
+
+      # dump db
+      - type: shell
+        name: Dump test database
+        command: |
+          pg_dump -U circle -d optisure_test -F c -b -v -f optisure_test.dmp
+
+      - persist_to_workspace:
+          root: ~/code
+          paths:
+            - ./
+
+  ################################# Seed data Test - DE context #########################################################
+  test_seed_de:
+    <<: *defaults
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      # DB
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Setup the database and seed
+          command: bundle exec rails db:create db:structure:load db:seed
+
+  ################################# Seed data Test - AT context #########################################################
+  test_seed_at:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      # DB
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Setup the database and seed
+          command: APP_LOCALE=de-at bundle exec rails db:create db:structure:load db:seed
+
+  #############################################################################################################################################################################################
+  ############################################################                         Ember Tests                      #######################################################################
+  #############################################################################################################################################################################################
+
+  fe_lint_js:
+    <<: *lean_defaults
+    parallelism: 5
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - type: shell
+        name: Lint all packages (eslint)
+        command: |
+          yarn lerna-parallelism run \
+            --stream --concurrency 1 \
+            --ignore @clark-shell/auth \
+            --ignore @clark-shell/bridge \
+            --ignore @clark-shell/ember-bridge \
+            --ignore @clarksource/ember-native \
+            --ignore @clark-shell/microfarad \
+            --ignore @clark-shell/plugin-utils \
+            --ignore @clark-shell/plugins \
+            --ignore @clark-shell/plugin.* \
+            lint:js
+
+  fe_lint_types:
+    <<: *lean_defaults
+    parallelism: 5
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - type: shell
+        name: Lint all packages (tsc)
+        command: |
+          yarn lerna-parallelism run \
+            --stream --concurrency 1 \
+            --ignore @clark-shell/auth \
+            --ignore @clark-shell/bridge \
+            --ignore @clark-shell/ember-bridge \
+            --ignore @clarksource/ember-native \
+            --ignore @clark-shell/microfarad \
+            --ignore @clark-shell/plugin-utils \
+            --ignore @clark-shell/plugins \
+            --ignore @clark-shell/plugin.* \
+            lint:types
+
+  fe_lint_hbs:
+    <<: *lean_defaults
+    parallelism: 2
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - type: shell
+        name: Lint all packages (ember-template-lint)
+        command: |
+          yarn lerna-parallelism run \
+            --stream --concurrency 1 \
+            --ignore @clark-shell/auth \
+            --ignore @clark-shell/bridge \
+            --ignore @clark-shell/ember-bridge \
+            --ignore @clarksource/ember-native \
+            --ignore @clark-shell/microfarad \
+            --ignore @clark-shell/plugin-utils \
+            --ignore @clark-shell/plugins \
+            --ignore @clark-shell/plugin.* \
+            lint:hbs
+
+  fe_test_packages:
+    <<: *lean_defaults
+    parallelism: 5
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - type: shell
+        name: Test all packages, excluding client
+        environment:
+          JOBS: 1
+          # Keep in sync with:
+          # - Dockerfile
+          # - deploy/before_symlink.rb
+          NODE_OPTIONS: --max_old_space_size=3072
+        command: |
+          export TESTEM_REPORTS="$(realpath reports)"
+          yarn lerna-parallelism run \
+            --stream \
+            --concurrency 1 \
+            --since \
+            --ignore @clarksource/client \
+            --ignore @clark-shell/auth \
+            --ignore @clark-shell/bridge \
+            --ignore @clark-shell/ember-bridge \
+            --ignore @clarksource/ember-native \
+            --ignore @clark-shell/microfarad \
+            --ignore @clark-shell/plugin-utils \
+            --ignore @clark-shell/plugins \
+            --ignore @clark-shell/plugin.* \
+            test
+
+      - store_artifacts:
+          path: reports
+
+      - store_test_results:
+          path: reports
+
+  fe_test_client:
+    <<: *lean_defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - type: shell
+        name: Test the client
+        no_output_timeout: 15m
+        environment:
+          JOBS: 1
+          # Keep in sync with:
+          # - Dockerfile
+          # - deploy/before_symlink.rb
+          NODE_OPTIONS: --max_old_space_size=3072
+        command: |
+          export TESTEM_REPORTS="$(realpath reports)"
+          yarn workspace @clarksource/client test
+
+      - store_artifacts:
+          path: reports
+
+      - store_test_results:
+          path: reports
+
+  #############################################################################################################################################################################################
+  ############################################################                   CLARK Browser Tests                    #######################################################################
+  #############################################################################################################################################################################################
+
+  test_clark_browser:
+    <<: *defaults
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      - type: shell
+        name: Build CLARK client
+        environment:
+          JOBS: 1
+          EMBER_ENV: circle
+          # Keep in sync with:
+          # - Dockerfile
+          # - deploy/before_symlink.rb
+          NODE_OPTIONS: --max_old_space_size=3072
+        command: |
+          cd client && yarn run build
+
+      - type: shell
+        name: Prepare tests
+        command: |
+          mkdir -p public/assets/client && \
+          cp -r client/dist/* public/assets/client
+
+      - type: shell
+        name: Creating an HTTP server for the client
+        command: ruby -run -ehttpd ./public/assets/client/index.html -p4200 >./log/capybara_assets.log 2>&1
+        background: true
+
+      # Clark tests --------------------------------------------------------------------------------------
+
+      - type: shell
+        name: Browser tests, but not other contexts
+        no_output_timeout: 15m
+        environment:
+          NUMBER_OF_CPUS: 2
+          CAPYBARA_LOGS: true
+        command: |
+          bundle exec parallel_rspec --serialize-stdout spec \
+          -n $NUMBER_OF_CPUS \
+          --test-options \
+          '--tag @browser \
+          --tag ~@timeout \
+          --tag ~@slow \
+          --tag ~@clark_with_master_data \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml'
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+      - store_artifacts:
+          path: ./log/capybara_server.log
+          when: on_fail
+
+      - store_artifacts:
+          path: ./log/capybara_server2.log
+          when: on_fail
+
+      - store_artifacts:
+          path: ./log/capybara_assets.log
+          when: on_fail
+
+      - store_artifacts:
+          path: ./tmp/capybara/
+          when: on_fail
+
+  #############################################################################################################################################################################################
+  ############################################################                       CLARK Tests                        #######################################################################
+  #############################################################################################################################################################################################
+
+  ### models
+
+  test_clark_models:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      # Clark tests but NOT clark master data ones
+      # Only for models directory
+      - type: shell
+        name: Clark models tests
+        environment:
+          NUMBER_OF_CPUS: 2
+          COUNT_DB_QUERIES: true
+          DB_QUERIES_LIMIT: 220
+        command: |
+          bundle exec parallel_rspec spec/models \
+          --serialize-stdout \
+          -n $NUMBER_OF_CPUS \
+          --test-options \
+          '--tag ~@browser \
+          --tag ~@integration \
+          --tag ~@fail \
+          --tag ~@timeout \
+          --tag ~@slow \
+          --tag ~@clark_with_master_data \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml'
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  ### lib/lifters/domain
+
+  test_clark_lib_lifters_domain:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      # Clark tests but NOT clark master data ones
+      # Only for lib/lifters/domain sub-directory
+      # and specs that start from digits or a-o letters
+      - type: shell
+        name: Clark lib/lifters/domain tests
+        environment:
+          NUMBER_OF_CPUS: 2
+          COUNT_DB_QUERIES: true
+          DB_QUERIES_LIMIT: 220
+        command: |
+          bundle exec parallel_rspec spec/lib/lifters/domain \
+          --serialize-stdout \
+          -n $NUMBER_OF_CPUS \
+          --test-options \
+          '--tag ~@browser \
+          --tag ~@integration \
+          --tag ~@fail \
+          --tag ~@timeout \
+          --tag ~@slow \
+          --tag ~@clark_with_master_data \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml'
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  ### rest
+
+  test_clark:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      # Clark tests but NOT clark master data ones
+      # Excepting models and lib directories
+      - type: shell
+        name: Clark tests (excl. models and lib/lifters/domain)
+        environment:
+          NUMBER_OF_CPUS: 2
+          COUNT_DB_QUERIES: true
+          DB_QUERIES_LIMIT: 220
+        command: |
+          bundle exec parallel_rspec spec \
+          --exclude-pattern "(lib\/lifters\/domain|models)\/.*" \
+          --serialize-stdout \
+          -n $NUMBER_OF_CPUS \
+          --test-options \
+          '--tag ~@browser \
+          --tag ~@integration \
+          --tag ~@fail \
+          --tag ~@timeout \
+          --tag ~@slow \
+          --tag ~@clark_with_master_data \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml'
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  #############################################################################################################################################################################################
+  ############################################################                 CLARK Integration Tests                  #######################################################################
+  #############################################################################################################################################################################################
+
+  test_clark_integration:
+    <<: *defaults
+    parallelism: 5
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      # Clark tests but NOT clark master data ones
+      - type: shell
+        name: Clark tests
+        environment:
+          COUNT_DB_QUERIES: true
+        command: |
+          circleci tests glob "spec/api/clark_api/automation_helpers/create_offer_setup_spec.rb" | circleci tests split --timings-file /.circleci-task-data/circle-test-results/results.json --split-by=timings > /tmp/tests-to-run
+          bundle exec rspec --tag @integration \
+          --tag ~@browser \
+          --tag ~@fail \
+          --tag ~@timeout \
+          --tag ~@slow \
+          --tag ~@clark_with_master_data \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml \
+          $(cat /tmp/tests-to-run)
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  #############################################################################################################################################################################################
+  ############################################################                       CLARK Master Data Tests                        ###########################################################
+  #############################################################################################################################################################################################
+
+  test_clark_master_data:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - *run_only_when_backend_files_changed
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      - run:
+          name: Database setup
+          command: TEST_ENV_NUMBER=2 bundle exec rake db:create
+
+      - type: shell
+        name: Restore db dump
+        command: |
+          pg_restore -U circle -v -d optisure_test optisure_test.dmp
+          pg_restore -U circle -v -d optisure_test2 optisure_test.dmp
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Build clark specific tests ------------------------------------------------------------------------------
+      - type: shell
+        name: Clark master-data tests
+        environment:
+          RAILS_ENV: test
+        command: |
+          bundle exec rake test:load_master_data && bundle exec rspec spec --tag '~fail' \
+            --tag 'clark_with_master_data' \
+            --tag 'with_master_data' \
+            --tag '~timeout' \
+            --tag '~slow' \
+            --color \
+            --format Fivemat \
+            --format RspecJunitFormatter \
+            -o  results/junit/junit--masterdata.xml
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  ################################# Smoke Tests ############################################################
+  smoke_tests:
+    <<: *defaults
+    environment:
+      CAPYBARA_DRIVER: headless_chrome
+      CUCUMBER_VERBOSE: silent
+      USE_PROXY: false
+    steps:
+      - checkout
+
+      - type: shell
+        name: Running the smoke tests
+        command: echo Running the smoke tests against $CUCUMBER_TARGET_URL
+
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - type: shell
+        name: Bundle install
+        command: bundle install --path vendor/bundle
+
+      - type: cache-save
+        name: Store bundle cache
+        key: gems-v1-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      - type: shell
+        name: Update chromedriver
+        command: bundle exec rake webdrivers:chromedriver:update
+
+      - <<: *install_allure_report
+
+      - <<: *install_proxy
+
+      - type: shell
+        name: Run Smoke Tests
+        command: |
+          FAKESMTP_URL=$FAKESMTP_URL_DE \
+          bundle exec parallel_cucumber \
+          --serialize-stdout \
+          -n 4 \
+          -o "-t '@smoke and not @ignore' \
+          --format AllureCucumber::CucumberFormatter --out allure-results \
+          --retry 2 \
+          --no-strict-flaky \
+          --expand \
+          --no-source" \
+          features/gherkin_scenarios/clark \
+          features/gherkin_scenarios/shared_tests \
+          --exclude features/gherkin_scenarios/clark/cms
+
+      - <<: *allure_report
+
+      - <<: *store_screenshot
+      - <<: *store_js_log
+      - <<: *store_har_log
+      - <<: *store_allure_report
+
+  ################################# Smoke Tests Mobile Web ############################################################
+  smoke_tests_mobile_web:
+    <<: *defaults
+    environment:
+      CAPYBARA_DRIVER: headless_chrome_iphone_x
+      CUCUMBER_VERBOSE: silent
+      USE_PROXY: false
+    steps:
+      - checkout
+
+      - type: shell
+        name: Running the smoke tests
+        command: echo Running the smoke tests against $CUCUMBER_TARGET_URL
+
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - type: shell
+        name: Bundle install
+        command: bundle install --path vendor/bundle
+
+      - type: cache-save
+        name: Store bundle cache
+        key: gems-v1-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      - type: shell
+        name: Update chromedriver
+        command: bundle exec rake webdrivers:chromedriver:update
+
+      - <<: *install_allure_report
+
+      - <<: *install_proxy
+
+      - type: shell
+        name: Run Smoke Tests in mobile web browser
+        command: |
+          FAKESMTP_URL=$FAKESMTP_URL_DE \
+          bundle exec parallel_cucumber \
+          --serialize-stdout \
+          -n 4 \
+          -o \
+          "-t '@smoke and not @ignore and not @desktop_only' \
+          --format AllureCucumber::CucumberFormatter --out allure-results \
+          --retry 2 \
+          --no-strict-flaky \
+          --expand \
+          --no-source" \
+          features/gherkin_scenarios/clark \
+          features/gherkin_scenarios/shared_tests \
+          --exclude features/gherkin_scenarios/clark/cms
+
+      - <<: *allure_report
+
+      - <<: *store_screenshot
+      - <<: *store_js_log
+      - <<: *store_har_log
+      - <<: *store_allure_report
+
+  ################################# Smoke Tests Mobile Web Clark2 ############################################################
+  smoke_tests_mobile_web_clark_2:
+    <<: *defaults
+    environment:
+      CAPYBARA_DRIVER: headless_chrome_iphone_x
+      CUCUMBER_VERBOSE: silent
+      USE_PROXY: false
+    steps:
+      - checkout
+
+      - type: shell
+        name: Running the smoke tests
+        command: echo Running the smoke tests against $CUCUMBER_TARGET_URL
+
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - type: shell
+        name: Bundle install
+        command: bundle install --path vendor/bundle
+
+      - type: cache-save
+        name: Store bundle cache
+        key: gems-v1-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      - type: shell
+        name: Update chromedriver
+        command: bundle exec rake webdrivers:chromedriver:update
+
+      - <<: *install_allure_report
+
+      - <<: *install_proxy
+
+      - type: shell
+        name: Run Smoke Tests in mobile web browser
+        command: |
+          FAKESMTP_URL=$FAKESMTP_URL_DE \
+          bundle exec parallel_cucumber \
+          --serialize-stdout \
+          -n 4 \
+          -o \
+          "-t '@smoke and not @ignore and not @desktop_only' \
+          --format AllureCucumber::CucumberFormatter --out allure-results \
+          --retry 2 \
+          --no-strict-flaky \
+          --expand \
+          --no-source" \
+          features/gherkin_scenarios/clark_2
+
+      - <<: *allure_report
+
+      - <<: *store_screenshot
+      - <<: *store_js_log
+      - <<: *store_har_log
+      - <<: *store_allure_report
+
+  ################################# Smoke Tests Clark 2 ############################################################
+  smoke_tests_clark_2:
+    <<: *defaults
+    environment:
+      CAPYBARA_DRIVER: headless_chrome
+      CUCUMBER_VERBOSE: silent
+      USE_PROXY: false
+    steps:
+      - checkout
+
+      - type: shell
+        name: Running the smoke tests
+        command: echo Running the smoke tests against $CUCUMBER_TARGET_URL
+
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - type: shell
+        name: Bundle install
+        command: bundle install --path vendor/bundle
+
+      - type: cache-save
+        name: Store bundle cache
+        key: gems-v1-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      - type: shell
+        name: Update chromedriver
+        command: bundle exec rake webdrivers:chromedriver:update
+
+      - <<: *install_allure_report
+
+      - <<: *install_proxy
+
+      - type: shell
+        name: Run Smoke Tests
+        command: |
+          FAKESMTP_URL=$FAKESMTP_URL_DE \
+          bundle exec parallel_cucumber \
+          --serialize-stdout \
+          -n 4 \
+          -o "-t '@smoke and not @ignore' \
+          --format AllureCucumber::CucumberFormatter --out allure-results \
+          --retry 2 \
+          --no-strict-flaky \
+          --expand \
+          --no-source" \
+          features/gherkin_scenarios/clark_2
+
+      - <<: *allure_report
+
+      - <<: *store_screenshot
+      - <<: *store_js_log
+      - <<: *store_har_log
+      - <<: *store_allure_report
+
+  ################################# Smoke Tests Clark Austria #########################################################
+  smoke_tests_austria:
+    <<: *lean_defaults
+    environment:
+      CAPYBARA_DRIVER: headless_chrome
+      CUCUMBER_TARGET_URL: https://staging-test-14.clark.de
+      CUCUMBER_VERBOSE: silent
+      USE_PROXY: false
+    resource_class: small
+    steps:
+      - checkout
+
+      - type: shell
+        name: Running the clark austria smoke tests
+        command: echo Running the smoke tests against $CUCUMBER_TARGET_URL
+
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - gems-v1-{{ checksum "Gemfile.lock" }}
+
+      - type: shell
+        name: Bundle install
+        command: bundle install --path vendor/bundle
+
+      - <<: *install_allure_report
+
+      - <<: *install_proxy
+
+      - type: shell
+        name: Update chromedriver
+        command: bundle exec rake webdrivers:chromedriver:update
+
+      - type: shell
+        name: Run Smoke Tests
+        command: |
+          APP_LOCALE=de-at \
+          FAKESMTP_URL=$FAKESMTP_URL_AT \
+          bundle exec parallel_cucumber \
+          --serialize-stdout \
+          -n 4 \
+          -o \
+          "-t '@smoke and not @ignore' \
+          --format AllureCucumber::CucumberFormatter --out allure-results \
+          --retry 2 \
+          --no-strict-flaky \
+          --expand \
+          --no-source" \
+          features/gherkin_scenarios/clark_austria \
+          features/gherkin_scenarios/shared_tests \
+          --exclude features/gherkin_scenarios/clark_austria/cms
+
+      - <<: *allure_report
+
+      - <<: *store_screenshot
+      - <<: *store_js_log
+      - <<: *store_har_log
+      - <<: *store_allure_report
+
+  #############################################################################################################################################################################################
+  ############################################################                       GEMS Tests                         #######################################################################
+  #############################################################################################################################################################################################
+
+  test_gems:
+    <<: *lean_defaults
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+      - type: shell
+        name: bundler
+        command: |
+          bundle install --path vendor/bundle
+
+      # Running tests ------------------------------------------------------------------------------------
+
+      # Only for gems directory
+      - type: shell
+        name: Execute specs for custom gems
+        command: |
+          bundle exec rspec gems/**/spec \
+          --format Fivemat \
+          --format RspecJunitFormatter \
+          -o results/junit/junit--unit.xml
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  #############################################################################################################################################################################################
+  #############################################################################################################################################################################################
+
+  # Nightly ------------------------------------------------------------------------------------------
+  nightly_suites:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run:
+          name: Add db config
+          command: mv config/database.yml.circle config/database.yml
+
+      - run:
+          name: Update Debian repo list
+          command: |
+            sudo apt-get install wget -yqq
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+            sudo apt update
+
+      - run:
+          name: Install Google Chrome
+          command: |
+            curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo dpkg -i google-chrome.deb
+            sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
+
+      - run:
+          name: Install system dependenies
+          command: sudo apt-get install -yqq imagemagick wkhtmltopdf qt5-default libqt5webkit5-dev gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-x postgresql-client-11
+
+      # Restore bundle cache
+      - type: cache-restore
+        name: Restore bundle cache
+        keys:
+          - application-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Bundle Install
+          command: bundle install
+
+      # Restore npm cache
+      - type: cache-restore
+        name: Restore npm modules
+        keys:
+          - yarn-v3-{{ checksum "yarn.lock" }}-{{ arch }}
+
+      - run:
+          name: Install npm modules
+          command: yarn bootstrap
+
+      # Store bundle cache
+      - type: cache-save
+        name: Store bundle cache
+        key: application-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      # Store npm cache
+      - type: cache-save
+        name: Store npm modules
+        key: yarn-v3-{{ checksum "yarn.lock" }}-{{ arch }}
+        paths:
+          - './node_modules'
+          - './client/node_modules'
+          - ~/.cache/yarn
+
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - run:
+          name: Database setup
+          command: bundle exec rake db:structure:load db:migrate --trace
+
+      - run:
+          name: Preparing tests
+          command: |
+            rm db/cms_fixtures/clark/de/files/*
+
+            rm -rf db/cms_fixtures/clark/de/pages/index/archiv
+            rm -rf db/cms_fixtures/clark/de/pages/index/teilnahmebedingun*
+            rm -rf db/cms_fixtures/clark/de/pages/index/milesand*
+            rm -rf db/cms_fixtures/clark/de/pages/index/zahn*
+            rm -rf db/cms_fixtures/clark/de/pages/index/tier*
+            rm -rf db/cms_fixtures/clark/de/pages/index/deal*
+            rm -rf db/cms_fixtures/clark/de/pages/index/*versicherung*
+
+            RAILS_ENV=test bundle exec rails db:environment:set
+            bundle exec rake app:uglify
+            bundle exec rails test:prepare
+            bundle exec rails assets:precompile --trace && \
+            mkdir -p public/assets/client && \
+            cp -r client/dist/* public/assets/client
+            mkdir -p results/{junit,rspec,coverage}
+
+      - type: shell
+        when: always
+        command: |
+          bundle exec rspec spec \
+            --tag 'browser' \
+            --tag '~with_master_data' \
+            --color \
+            --format Fivemat \
+            --format RspecJunitFormatter \
+            -o  results/junit/junit--browser.xml
+
+      - type: shell
+        when: always
+        command: |
+          bundle exec rspec spec  \
+            --tag '~browser' \
+            --tag '~with_master_data' \
+            --color \
+            --format Fivemat \
+            --format RspecJunitFormatter \
+            -o  results/junit/junit--unit.xml
+
+      - run:
+          name: Run frontend tests
+          when: always
+          environment:
+            JOBS: 1
+            # Keep in sync with:
+            # - Dockerfile
+            # - deploy/before_symlink.rb
+            NODE_OPTIONS: --max_old_space_size=3072
+          command: |
+            yarn test
+
+      # Collecting results -------------------------------------------------------------------------------
+
+      - run:
+          name: Process test artefacts
+          when: always
+          command: |
+            yarn junit-merge -d results/junit
+            cp merged-test-results.xml results/rspec/merged-test-results.xml
+            rm -rf results/junit
+            mkdir results/junit-report
+            yarn xunit-viewer --results=results/rspec/merged-test-results.xml --output=results/junit-report
+
+      - store_test_results:
+          path: ./results/
+
+      - store_artifacts:
+          path: ./results
+
+  # Building containers ------------------------------------------------------------------------------
+
+  build_austria:
+    docker:
+      - image: circleci/python:3.6.3-stretch
+        environment:
+          AWS_DEFAULT_REGION: eu-central-1
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Install aws cli dependencies
+          command: |
+            pip install --upgrade --user awscli
+            export PATH=~/.local/bin:$PATH
+            aws ecr get-login --no-include-email --region eu-central-1 | bash
+      - run:
+          name: Build rails image
+          no_output_timeout: 20m
+          command: |
+            docker build \
+                --tag ${AWS_ACCOUNT_ID}.dkr.ecr.eu-central-1.amazonaws.com/application:clark-at-${CIRCLE_BRANCH:-$CIRCLE_TAG} \
+                --file Dockerfile \
+                --build-arg RAILS_ENV=production \
+                --build-arg APP=clark \
+                --build-arg APP_LOCALE=de-at \
+                .
+      - run:
+          name: Copy public folder
+          command: |
+            docker run \
+              -it \
+              -d \
+              --name temp-docker \
+              ${AWS_ACCOUNT_ID}.dkr.ecr.eu-central-1.amazonaws.com/application:clark-at-${CIRCLE_BRANCH:-$CIRCLE_TAG}
+            docker cp temp-docker:/app/public public-folder
+            docker rm -f temp-docker
+      - run:
+          name: Build web image
+          command: |
+            docker build \
+                --tag ${AWS_ACCOUNT_ID}.dkr.ecr.eu-central-1.amazonaws.com/web:clark-at-${CIRCLE_BRANCH:-$CIRCLE_TAG} \
+                --file Dockerfile-web \
+                .
+      - run:
+          name: Publish rails image
+          command: |
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.eu-central-1.amazonaws.com/application:clark-at-${CIRCLE_BRANCH:-$CIRCLE_TAG}
+      - run:
+          name: Publish web image
+          command: |
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.eu-central-1.amazonaws.com/web:clark-at-${CIRCLE_BRANCH:-$CIRCLE_TAG}
+
+  build_de:
+    docker:
+      - image: circleci/python:3.6.3-stretch
+        environment:
+          AWS_DEFAULT_REGION: eu-central-1
+          APP_LOCALE: de-de
+          APP: clark
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 19.03.13
+
+      - run:
+          name: Install aws cli dependencies
+          command: |
+            pip install --upgrade --user awscli
+            export PATH=~/.local/bin:$PATH
+            aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION} --registry-ids ${AWS_ACCOUNT_REGISTRY} | bash
+      - run:
+          name: Build rails image
+          no_output_timeout: 20m
+          command: |
+            docker build \
+                --tag ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark:${CIRCLE_BRANCH:-$CIRCLE_TAG}-${APP_LOCALE} \
+                --tag ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark:${CIRCLE_SHA1}-${APP_LOCALE} \
+                --file ./docker-files/rails/Dockerfile \
+                --build-arg RAILS_ENV=production \
+                --build-arg APP=${APP} \
+                --build-arg APP_LOCALE=${APP_LOCALE} \
+                .
+      - run:
+          name: Build web image
+          command: |
+            docker build \
+                --tag ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark-web:${CIRCLE_BRANCH:-$CIRCLE_TAG}-${APP_LOCALE} \
+                --tag ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark-web:${CIRCLE_SHA1}-${APP_LOCALE} \
+                --file ./docker-files/web/Dockerfile \
+                --build-arg RAILS_IMAGE_NAME=${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark:${CIRCLE_BRANCH:-$CIRCLE_TAG}-${APP_LOCALE} \
+                .
+      - run:
+          name: Publish rails image
+          command: |
+            docker push ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark:${CIRCLE_BRANCH:-$CIRCLE_TAG}-${APP_LOCALE}
+            docker push ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark:${CIRCLE_SHA1}-${APP_LOCALE}
+      - run:
+          name: Publish web image
+          command: |
+            docker push ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark-web:${CIRCLE_BRANCH:-$CIRCLE_TAG}-${APP_LOCALE}
+            docker push ${AWS_ACCOUNT_REGISTRY}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/clark-web:${CIRCLE_SHA1}-${APP_LOCALE}
+
+  build_dummy:
+    docker:
+      - image: circleci/python:3.6.3-stretch
+        environment:
+          AWS_DEFAULT_REGION: eu-central-1
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build rails image
+          command: |
+            docker build \
+                --tag dummy-${CIRCLE_BRANCH:-$CIRCLE_TAG} \
+                --file Dockerfile \
+                --build-arg RAILS_ENV=production \
+                --build-arg APP=clark \
+                .
+
+      - run:
+          name: Copy public folder
+          command: |
+            docker run \
+              -it \
+              -d \
+              --name temp-docker \
+              dummy-${CIRCLE_BRANCH:-$CIRCLE_TAG}
+            docker cp temp-docker:/app/public public-folder
+            docker rm -f temp-docker
+
+      - run:
+          name: Build web image
+          command: |
+            docker build \
+                --tag web-dummy-${CIRCLE_BRANCH:-$CIRCLE_TAG} \
+                --file Dockerfile-web \
+                .
+
+  k8s_deploy_staging:
+    docker:
+      - image: circleci/python:3.6.3-stretch
+        environment:
+          BUILD_ENVIRONMENT: staging
+          BUILD_TARGET: CLARK_DE
+          DRYRUN: false
+
+    resource_class: small
+    steps:
+      - run:
+          name: Run Deployment
+          command: |
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${K8S_DEPLOYMENT_JENKINS_TOKEN}" \
+              -d '{ "APP_VERSION":"'"${CIRCLE_TAG}"'", "ENVIRONMENT":"'"$BUILD_ENVIRONMENT"'", "TARGET":"'"$BUILD_TARGET"'", "dryrun":"'"$DRYRUN"'" }' \
+              "https://jenkins.ci.flfinteche.de/generic-webhook-trigger/invoke" || :
+
+      # FIXME: Need to find a way to report status back to CircleCI when the job is done.
+      - run:
+          name: Wait for deployment to complete
+          no_output_timeout: 20m
+          command: sleep 600
+
+  austria_opsworks_deploy_staging:
+    docker:
+      - image: circleci/python:3.6.3-stretch
+        environment:
+          AWS_DEFAULT_REGION: eu-central-1
+    resource_class: small
+    steps:
+      - checkout
+
+      - run:
+          name: Install aws cli and dependencies
+          command: |
+            pip install --upgrade --user awscli
+            sudo apt -y install jq
+
+      - run:
+          name: Check current deployment
+          no_output_timeout: 5m
+          command: |
+            DEPLOYED_REF="$(~/.local/bin/aws opsworks describe-apps \
+              --region "us-east-1" \
+              --app-ids "$CLARK_AT_OPSWORKS_APP_ID" | jq -r '.Apps[0].AppSource.Revision')"
+
+            echo "current deployed ref on staging-14 is ${DEPLOYED_REF}"
+
+      - run:
+          name: Run deployment
+          no_output_timeout: 30m
+          command: |
+            DEPLOYMENT_ID="$(~/.local/bin/aws opsworks create-deployment \
+              --region "us-east-1" \
+              --stack-id "$CLARK_AT_OPSWORKS_STACK_ID" \
+              --app-id "$CLARK_AT_OPSWORKS_APP_ID" \
+              --layer-ids "$CLARK_AT_OPSWORKS_LAYER_ID" \
+              --comment "${CIRCLE_USERNAME:-circle}-${CIRCLE_TAG}" \
+              --command "{\"Name\":\"deploy\",\"Args\":{\"migrate\":[\"true\"]}}" \
+              --custom-json "{\"deploy\":{\"optisure_staging\":{\"scm\":{\"revision\":\"$CIRCLE_TAG\"}}}}" | jq -r '.DeploymentId')"
+
+            echo "deployment: $DEPLOYMENT_ID"
+
+            echo "waiting for deployment to be finished"
+
+            STATUS=
+
+            until test "$STATUS" == "successful"; do
+              STATUS="$(~/.local/bin/aws --region us-east-1 opsworks describe-deployments --deployment-ids "$DEPLOYMENT_ID" | jq -r '.Deployments[0].Status')"
+
+              test "$STATUS" == "failed" && echo "Deployment to staging failed!" && exit 1
+
+              echo "status is $STATUS, sleeping" && sleep 10
+            done
+
+  security_analysis:
+    <<: *lean_defaults
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - run:
+          name: Install brakeman
+          command: gem install sassc brakeman
+
+      - run:
+          name: Execute brakeman
+          command: brakeman -o brakeman_report.html
+
+      - store_artifacts:
+          path: brakeman_report.html
+          destination: security-report
+
+  scan_complexity:
+    <<: *lean_defaults
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: ~/code
+
+      - run:
+          name: Cyclomatic Complexity
+          command: ruby scripts/cyclomatic_complexity_report.rb > cyclomatic_complexity.json
+
+      - run:
+          name: ABC Complexity
+          command: ruby scripts/abc_report.rb > abc_report.json
+
+      - store_artifacts:
+          path: cyclomatic_complexity.json
+          destination: cyclomatic-complexity
+
+      - store_artifacts:
+          path: abc_report.json
+          destination: abc-complexity
+
+workflows:
+  version: 2
+
+  # Regular test, build deploy workflow
+  setup-test-build-deploy:
+    jobs:
+      # Test suites that get run for every commit
+      - setup:
+          <<: *run_on_all_branches
+      - fe_lint_js:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - fe_lint_types:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - fe_lint_hbs:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - fe_test_packages:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - fe_test_client:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark_models:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark_lib_lifters_domain:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark_browser:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark_master_data:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_clark_integration:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_gems:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - security_analysis:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - scan_complexity:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_seed_de:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+      - test_seed_at:
+          <<: *run_on_all_branches
+          requires:
+            - setup
+
+      - build_austria:
+          <<: *run_only_on_tagged_version
+          requires:
+            - setup
+            - test_clark_models
+            - test_clark_lib_lifters_domain
+            - test_clark
+            - test_clark_master_data
+            - test_clark_browser
+
+      - build_de:
+          <<: *run_only_on_tagged_version
+          requires:
+            - setup
+            - test_clark_models
+            - test_clark_lib_lifters_domain
+            - test_clark
+            - test_clark_master_data
+            - test_clark_browser
+
+      # Deploy Staging to Kubernetes Clusters (only DE for now)
+      # FIXME: This job is currently blocked by manual approval to avoid concurrent tags running on
+      # top of each other. A proper/automatic fix for this is on the way here:
+      # https://clarkteam.atlassian.net/browse/JCLARK-66706
+      - k8s_deploy_staging:
+          <<: *run_only_on_tagged_version
+          requires:
+            - build_de
+            - hold
+
+      # Job that can only be finished by manual approval. This can be used as a requirement on other
+      # jobs. More information about the type "approval" can be found here:
+      # https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval
+      - hold:
+          <<: *run_only_on_tagged_version
+          type: approval
+          requires:
+            - setup
+
+      # Deploy to Staging-14 on OpsWorks
+      #
+      # FIXME: This job is currently blocked by manual approval to avoid concurrent tags running on
+      # top of each other. A proper/automatic fix for this is on the way here:
+      # https://clarkteam.atlassian.net/browse/JCLARK-66706
+      - austria_opsworks_deploy_staging:
+          <<: *run_only_on_tagged_version
+          requires:
+            - hold
+
+      - smoke_tests:
+          <<: *run_only_on_tagged_version
+          requires:
+            - k8s_deploy_staging
+
+      - smoke_tests_mobile_web:
+          <<: *run_only_on_tagged_version
+          requires:
+            - k8s_deploy_staging
+
+      - smoke_tests_clark_2:
+          <<: *run_only_on_tagged_version
+          requires:
+            - k8s_deploy_staging
+
+      - smoke_tests_mobile_web_clark_2:
+          <<: *run_only_on_tagged_version
+          requires:
+            - k8s_deploy_staging
+
+      - smoke_tests_austria:
+          <<: *run_only_on_tagged_version
+          requires:
+            - austria_opsworks_deploy_staging

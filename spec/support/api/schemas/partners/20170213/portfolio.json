@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "mandate": {
+      "type": "object"
+    },
+    "inquiry_categories": {
+      "type": "array",
+      "items": {
+        "$ref": "inquiry_category.json"
+      }
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "$ref": "product_without_root.json"
+      }
+    }
+  }
+}

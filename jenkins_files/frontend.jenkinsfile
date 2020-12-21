@@ -1,0 +1,122 @@
+library("base")
+
+def locales = [
+    CLARK_AT: "de-at",
+    CLARK_DE: "de-de",
+]
+
+def sentry_dsn = [
+    CLARK_DE: [
+        staging: 'https://bce252c3ca10491e8131459963a811b7@sentry.flfinteche.de/15',
+        production: "https://bce252c3ca10491e8131459963a811b7@sentry.flfinteche.de/3"
+    ],
+    CLARK_AT: [
+        staging: 'https://893f490e4c444b0f9f5cecec6b8167cd@sentry.production.clark-at.flfinteche.de/5',
+        production: 'https://da8685448c674323bf8a2e40e8d259e2@sentry.production.clark-at.flfinteche.de/4'
+    ],
+]
+
+def distributions = [
+    CLARK_DE: [
+        staging: [
+            bucket: "flfinteche-clark-de-staging-eu-central-1-frontend",
+            deploy_prepend: "https://app.staging.clark-de.flfinteche.de/"
+        ],
+        production: [
+            bucket: "flfinteche-clark-de-production-eu-central-1-frontend",
+            deploy_prepend: "https://app.clark.de/"
+        ]
+    ],
+    CLARK_AT: [
+        staging: [
+            bucket: "flfinteche-clark-at-staging-eu-central-1-frontend",
+            deploy_prepend: "https://app.staging.clark-at.flfinteche.de/"
+        ],
+        production: [
+            bucket: "flfinteche-clark-at-production-eu-central-1-frontend",
+            deploy_prepend: "https://app.goclark.at/"
+        ]
+    ]
+]
+
+pipeline {
+    agent none
+
+    stages {
+        stage ("Build and Deploy") {
+            when {
+                anyOf {
+                    buildingTag()
+                }
+            }
+
+            options {
+                skipDefaultCheckout()
+            }
+
+            matrix {
+                agent {
+                    kubernetes {
+                        defaultContainer 'nodejs'
+                        yamlFile '.jenkins/node12.yaml'
+                    }
+                }
+
+                axes {
+                    axis {
+                        name 'ACCOUNT'
+                        values 'CLARK_DE'  // 'CLARK_AT' to be added once it is ready to be deployed by k8t.
+                    }
+
+                    axis {
+                        name 'environment'
+                        values 'staging', 'production'
+                    }
+                }
+
+                stages {
+                    stage('Setup') {
+                        steps {
+                            script {
+                                if (environment == 'production') {
+                                  input message: "Confirm production deployment for ${env.TAG_NAME}?", ok: 'confirm', submitter: '/Testing Engineer'
+                                }
+                            }
+
+                            sh 'apk add git python make gcc musl-dev g++'
+                            sh 'yarn install --frozen-lockfile --non-interactive'
+                        }
+                    }
+                    stage('Deploy') {
+                        steps {
+                            script {
+                                withAWS(role: env.AWS_ROLE, region: env.AWS_REGION, roleAccount: env["AWS_ACCOUNT_${ACCOUNT}"]) {
+                                    withEnv(
+                                        [
+                                          "APP_LOCALE=${locales[account]}",
+                                          "DEPLOY_PREPEND=${distributions[account][environment]["deploy_prepend"]}",
+                                          "EMBER_S3_BUCKET=${distributions[account][environment]["bucket"]}",
+                                          "FRONTEND_DEPLOYMENT_TYPE=jenkins", // Controls deployment strategy in `client/config/deploy.js`
+                                          "JOBS=2", // https://github.com/babel/broccoli-babel-transpiler#number-of-jobs,
+                                          "SENTRY_DSN_EMBER=${sentry_dsn[account][environment]}"
+                                        ]
+                                    ) {
+                                        dir('client') {
+                                            try {
+                                                echo "Locale: ${APP_LOCALE}\nBucket: ${EMBER_S3_BUCKET}\nDeploy Prepend: ${DEPLOY_PREPEND}\nSentry DSN: ${SENTRY_DSN_EMBER}"
+                                                sh "yarn ember deploy ${environment}"
+                                            } catch (error) {
+                                                sh "cat /tmp/error.dump.*.log || true"
+                                                throw error
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,9 @@
+FROM node:10-stretch-slim
+
+RUN yarn global add ember-cli
+
+WORKDIR /var/app/client
+
+COPY . /var/app/
+
+ENTRYPOINT ["/var/app/frontend-entrypoint.sh"]

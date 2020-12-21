@@ -1,0 +1,9 @@
+[0610/160433.277:ERROR:file_io.cc(89)] ReadExactly: expected 36, observed 0
+[0624/084400.225:ERROR:file_io.cc(89)] ReadExactly: expected 36, observed 0
+[0625/101728.403:ERROR:process_reader_win.cc(123)] NtOpenThread: {Odmowa dostêpu} Proces za¿¹da³ dostêpu do obiektu, ale prawa dostêpu nie zosta³y przyznane. (0xc0000022)
+[0625/101728.405:ERROR:exception_snapshot_win.cc(98)] thread ID 24464 not found in process
+[0625/101728.435:ERROR:process_reader_win.cc(123)] NtOpenThread: {Odmowa dostêpu} Proces za¿¹da³ dostêpu do obiektu, ale prawa dostêpu nie zosta³y przyznane. (0xc0000022)
+[0625/101728.435:ERROR:exception_snapshot_win.cc(98)] thread ID 18000 not found in process
+[0629/202551.319:ERROR:file_io.cc(89)] ReadExactly: expected 36, observed 0
+[0827/154003.181:ERROR:prune_crash_reports.cc(35)] PruneCrashReportDatabase: Failed to get pending reports
+[1217/111139.857:ERROR:directory_reader_win.cc(43)] FindFirstFile: System nie mo¿e odnaleŸæ okreœlonej œcie¿ki. (0x3)

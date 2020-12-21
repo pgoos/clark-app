@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "properties": {
+    "ident": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "name_translations": {
+      "type": "object"
+    },
+    "category_type": {
+      "type": "string"
+    },
+    "vertical": {
+      "type": "object",
+      "properties": {
+        "ident": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "included_category_idents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cover_benchmark": {
+      "type": ["integer", "null"]
+    },
+    "average_price_cents": {
+      "type": ["integer", "null"]
+    },
+    "average_price_currency": {
+      "type": "string"
+    },
+    "valid_from": {
+      "type": "string"
+    },
+    "valid_until": {
+      "type": ["string", "null"]
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  }
+}

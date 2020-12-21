@@ -1,0 +1,134 @@
+library ('base')
+
+pipeline {
+  agent {
+    kubernetes {
+      defaultContainer 'jnlp'
+      yamlFile '.jenkins/regression-pod.yaml'
+    }
+  }
+
+  options {
+    timeout(time: 2, unit: 'HOURS')
+    timestamps()
+    buildDiscarder(
+      logRotator(
+        daysToKeepStr: '14',
+        numToKeepStr: '100',
+        artifactDaysToKeepStr: '30',
+      ))
+  }
+
+  parameters {
+    booleanParam(
+      name: 'SMOKE_TESTS_ONLY',
+      defaultValue: false,
+      description: 'Run smoke tests only otherwise full regression'
+    )
+
+    choice(
+      name: 'STAGING_URL',
+      choices: [
+        "https://staging.clark.de",
+        "https://staging-test-2.clark.de",
+        "https://staging-test-3.clark.de",
+        "https://staging-test-4.clark.de",
+        "https://staging-test-5.clark.de",
+        "https://staging-test-6.clark.de",
+        "https://staging-test-7.clark.de",
+        "https://staging-test-8.clark.de",
+        "https://staging-test-9.clark.de",
+        "https://staging-test-10.clark.de",
+        "https://staging-test-11.clark.de",
+        "https://staging-test-12.clark.de",
+        "https://staging-test-13.clark.de",
+        "https://staging-test-14.clark.de",
+        "https://staging-test-15.clark.de",
+        "https://staging-test-16.clark.de",
+        "https://staging-test-17.clark.de",
+        "https://staging-test-18.clark.de",
+        "https://staging-test-19.clark.de",
+        "https://staging-test-20.clark.de"
+      ],
+      description: 'select the staging environment'
+    )
+
+    choice(
+      name: 'BRAND',
+      choices: ['Clark'],
+      description: 'select the brand/whitelabel'
+    )
+  }
+
+  post {
+    always {
+      cleanWs()
+    }
+  }
+
+  environment {
+    RAILS_ENV = "test"
+    CHROME_WITHOUT_SANDBOX = "true"
+    CUCUMBER_AUTOMATION_CREDS = credentials('jenkins-cucumber-automation')
+  }
+
+  stages {
+    stage('cucumber regression tests') {
+      when {
+        anyOf {
+          triggeredBy 'TimerTrigger'
+          triggeredBy 'UserIdCause'
+        }
+      }
+
+      steps {
+        script {
+          withStatus(
+            context: "setup backend",
+            descriptionPending: "Running the setup to backend",
+            ignore: true
+          ) {
+            container('application') {
+              ansiColor('xterm') {
+                withCache('application/gems', 'vendor/bundle') {
+                  sh 'bundle install --jobs 3 --path vendor/bundle'
+                }
+
+                sh 'cp config/database.yml.jenkins config/database.yml'
+
+                sh 'bundle exec rake db:structure:load db:migrate'
+
+                withEnv([
+                  "CAPYBARA_DRIVER=headless_chrome",
+                  "CUCUMBER_TARGET_URL=${params.STAGING_URL}",
+                  "CHROME_WITHOUT_SANDBOX=true"]) {
+                  ansiColor('xterm') {
+                    try {
+                      def testType = params.SMOKE_TESTS_ONLY ? 'smoke tests' : 'regression tests'
+                      echo "Running the cucumber ${testType} against ${env.CUCUMBER_TARGET_URL} and brand ${params.BRAND}"
+
+                      def testSuitesMap = [Clark:'features/clark']
+
+                      def tags = params.SMOKE_TESTS_ONLY ? '@smoke and not @ignore' : 'not @ignore'
+                      def testSuite = testSuitesMap.get(params.BRAND)
+                      
+                      sh "bundle exec cucumber -t '${tags}' --format AllureCucumber::Formatter --out allure-results ${testSuite}"
+                    } finally {
+                      allure([
+                        includeProperties: false,
+                        jdk: '',
+                        properties: [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results: [[path: 'allure-results']]
+                      ])
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

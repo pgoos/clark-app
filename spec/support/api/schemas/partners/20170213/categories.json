@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": [
+    "categories"
+  ],
+  "properties": {
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "category.json"
+      }
+    }
+  }
+}

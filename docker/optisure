@@ -1,0 +1,46 @@
+upstream unicorn_server {
+  server unix://opt/clark/app/unicorn.sock fail_timeout=0;
+}
+
+server {
+  listen 80;
+  server_name www.kryptokent.de;
+
+  root /opt/clark/app/public;
+  try_files $uri @unicorn_server;
+
+  location @unicorn_server {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    #proxy_pass http://unicorn_server;
+
+    if ($uri !~ ^/(en$|de$|en/|de/|assets/|static/|cms-js/|cms-css/|users/auth/|api/|ahoy/|newsletter/|hcheck/|hooks/|robots\.txt|starter/|favicon\.ico)) {
+      # return 301 $scheme://$host/de$request_uri;
+      return 301 http://$host/de$request_uri;
+    }
+
+    # If you don't find the filename in the static files
+    # Then request it from the unicorn server
+    if (!-f $request_filename) {
+      proxy_pass http://unicorn_server;
+      break;
+    }
+  }
+
+  error_page 500 502 503 504 /500.html;
+
+  location = /500.html {
+    root /opt/clark/app/public/;
+  }
+
+  location ~* ^/assets/.* {
+    expires 1y;
+    add_header Cache-Control public;
+
+    # existing ETag may cause some browser to validate, hence make another call
+    add_header ETag "";
+    break;
+  }
+}
+

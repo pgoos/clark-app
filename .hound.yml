@@ -1,0 +1,16 @@
+coffeescript:
+  enabled: false
+jshint:
+  enabled: false
+scss:
+  enabled: false
+haml:
+  enabled: false
+tslint:
+  enabled: false
+swift:
+  enabled: false
+rubocop:
+  enabled: true
+  config_file: .rubocop.yml
+  version: 0.80.0

@@ -1,0 +1,456 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <soap:Body>
+    <GetWgErgebnisResponse xmlns="http://suh.softfair-server.de/suhservice">
+      <GetWgErgebnisResult>
+        <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+          <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+            <xs:complexType>
+              <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="Ticket">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="TicketID" type="xs:string" minOccurs="0"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="result" msdata:CaseSensitive="False" msdata:Locale="de-DE">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="nLaufzeit" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nTrfWrkID" type="xs:int" minOccurs="0"/>
+                      <xs:element name="nPreTrfKmbID" type="xs:int" minOccurs="0"/>
+                      <xs:element name="nNr" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nGslID_01" type="xs:int" minOccurs="0"/>
+                      <xs:element name="cGsl" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cTrfWrk" type="xs:string" minOccurs="0"/>
+                      <xs:element name="sbbtrg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmNt" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmNtOhnZhlWs" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cTrfLst" type="xs:string" minOccurs="0"/>
+                      <xs:element name="Highlight" type="xs:short" minOccurs="0"/>
+                      <xs:element name="nPrm_j_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_h_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_v_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_m_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_j_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_h_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_v_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm_m_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_j_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_h_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_v_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_m_lsv" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_j_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_h_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_v_Rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw_m_rg" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cPrmZw_j_lsv" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_h_lsv" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_v_lsv" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_m_lsv" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_j_rg" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_h_rg" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_v_rg" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cPrmZw_m_rg" type="xs:string" minOccurs="0"/>
+                      <xs:element name="GRBFHRLSGKTWG" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="tarifart" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nKombiBuendel" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="vorversicherung" type="xs:int" minOccurs="0"/>
+                      <xs:element name="vorschadenanzahl" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="vorschadenelementaranzahl" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="VRTRGSABLF" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="VRDTRNGWG" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nGF_abs" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nGF_prz" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="ws_error" type="xs:int" default="0" minOccurs="0"/>
+                      <xs:element name="pathVerarbeitungsdatei" type="xs:string" default="0" minOccurs="0"/>
+                      <xs:element name="pathVerarbeitungsbild" type="xs:string" default="images\keinevd.gif" minOccurs="0"/>
+                      <xs:element name="cprmzwbuendelrabatt" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nPrmZwBuendelrabatt" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cPrmZwBuendelrabatt1" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nPrmZwBuendelrabatt1" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cPrmZwBuendelrabatt2" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nPrmZwBuendelrabatt2" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cPrmZwBuendelrabatt3" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nPrmZwBuendelrabatt3" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="rabatt" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="antrag" type="xs:int" minOccurs="0"/>
+                      <xs:element name="antragemail" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cRahmenvertragsnr" type="xs:string" minOccurs="0"/>
+                      <xs:element name="dVersBeginnZeit" type="xs:dateTime" minOccurs="0"/>
+                      <xs:element name="dVersEndeZeit" type="xs:dateTime" minOccurs="0"/>
+                      <xs:element name="CourtageSatz" type="xs:int" minOccurs="0"/>
+                      <xs:element name="isNettoTarif" type="xs:int" minOccurs="0"/>
+                      <xs:element name="knz_show_rabatt" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="status_for_suh_j_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_h_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_v_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_m_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_j_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_h_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_v_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_suh_m_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_j_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_h_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_v_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_m_rg" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_j_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_h_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_v_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="status_for_fl3_m_lsv" type="xs:string" default="" minOccurs="0"/>
+                      <xs:element name="highlight_farbe" type="xs:string" minOccurs="0"/>
+                      <xs:element name="highlight_prioritaet" type="xs:int" minOccurs="0"/>
+                      <xs:element name="nNettoRefinFkr" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="Vermittlernummer" type="xs:string" minOccurs="0"/>
+                      <xs:element name="UnterVermittlernummer" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cIdent" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cTariflinie" type="xs:string" minOccurs="0"/>
+                      <xs:element name="nPrmNetto" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrm" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="nPrmZw" type="xs:decimal" minOccurs="0"/>
+                      <xs:element name="cPrmZw" type="xs:string" minOccurs="0"/>
+                      <xs:element name="cB2C" type="xs:int" minOccurs="0"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="zuers">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="ZuersZone" type="xs:string" minOccurs="0"/>
+                      <xs:element name="HinweisText" type="xs:string" minOccurs="0"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:schema>
+        <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+          <NewDataSet xmlns="">
+            <Ticket diffgr:id="Ticket1" msdata:rowOrder="0">
+              <TicketID>b00cea9a-3576-4f18-9d8b-06affbe0e3b8</TicketID>
+            </Ticket>
+            <result diffgr:id="result6" msdata:rowOrder="4">
+              <nLaufzeit>1.00</nLaufzeit>
+              <nTrfWrkID>6946</nTrfWrkID>
+              <nPreTrfKmbID>1181</nPreTrfKmbID>
+              <nNr>1</nNr>
+              <nGslID_01>3064</nGslID_01>
+              <cGsl>Grundeigentümer Versicherung VVaG</cGsl>
+              <cTrfWrk>Grundeigentümer VGV Pro Domo Premium</cTrfWrk>
+              <sbbtrg>500.00</sbbtrg>
+              <nPrmNt>164.732636</nPrmNt>
+              <nPrmNtOhnZhlWs>164.732636</nPrmNtOhnZhlWs>
+              <cTrfLst>WG PD Prem St,WG PD Prem LW,WG PD Prem F,WG Vorvers. Neubau,WG SB,WG Gebäudealter</cTrfLst>
+              <Highlight>0</Highlight>
+              <nPrm_j_lsv>191.649949</nPrm_j_lsv>
+              <nPrm_h_lsv>191.649949</nPrm_h_lsv>
+              <nPrm_v_lsv>191.649949</nPrm_v_lsv>
+              <nPrm_m_lsv>191.649949</nPrm_m_lsv>
+              <nPrm_j_rg>191.649949</nPrm_j_rg>
+              <nPrm_h_rg>191.649949</nPrm_h_rg>
+              <nPrm_v_rg>191.649949</nPrm_v_rg>
+              <nPrm_m_rg>191.649949</nPrm_m_rg>
+              <nPrmZw_j_lsv>191.64994900</nPrmZw_j_lsv>
+              <nPrmZw_h_lsv>95.82497450</nPrmZw_h_lsv>
+              <nPrmZw_v_lsv>47.91248725</nPrmZw_v_lsv>
+              <nPrmZw_m_lsv>15.970829083</nPrmZw_m_lsv>
+              <nPrmZw_j_rg>191.64994900</nPrmZw_j_rg>
+              <nPrmZw_h_rg>95.82497450</nPrmZw_h_rg>
+              <nPrmZw_v_Rg>47.91248725</nPrmZw_v_Rg>
+              <nPrmZw_m_rg>15.970829083</nPrmZw_m_rg>
+              <cPrmZw_j_lsv/>
+              <cPrmZw_h_lsv/>
+              <cPrmZw_v_lsv/>
+              <cPrmZw_m_lsv/>
+              <cPrmZw_j_rg/>
+              <cPrmZw_h_rg/>
+              <cPrmZw_v_rg/>
+              <cPrmZw_m_rg/>
+              <GRBFHRLSGKTWG>0.00</GRBFHRLSGKTWG>
+              <tarifart>Summe 1914</tarifart>
+              <vorversicherung>0</vorversicherung>
+              <VRDTRNGWG>12.00</VRDTRNGWG>
+              <ws_error>0</ws_error>
+              <pathVerarbeitungsdatei>0</pathVerarbeitungsdatei>
+              <pathVerarbeitungsbild>images\keinevd.gif</pathVerarbeitungsbild>
+              <rabatt>0</rabatt>
+              <antrag>0</antrag>
+              <antragemail/>
+              <cRahmenvertragsnr/>
+              <dVersBeginnZeit>2017-01-01T12:00:00+01:00</dVersBeginnZeit>
+              <dVersEndeZeit>2018-01-01T12:00:00+01:00</dVersEndeZeit>
+              <CourtageSatz>0</CourtageSatz>
+              <isNettoTarif>0</isNettoTarif>
+              <knz_show_rabatt>-1</knz_show_rabatt>
+              <status_for_suh_j_rg/>
+              <status_for_suh_h_rg/>
+              <status_for_suh_v_rg/>
+              <status_for_suh_m_rg/>
+              <status_for_suh_j_lsv/>
+              <status_for_suh_h_lsv/>
+              <status_for_suh_v_lsv/>
+              <status_for_suh_m_lsv/>
+              <status_for_fl3_j_rg/>
+              <status_for_fl3_h_rg/>
+              <status_for_fl3_v_rg/>
+              <status_for_fl3_m_rg/>
+              <status_for_fl3_j_lsv/>
+              <status_for_fl3_h_lsv/>
+              <status_for_fl3_v_lsv/>
+              <status_for_fl3_m_lsv/>
+              <highlight_prioritaet>10000</highlight_prioritaet>
+              <Vermittlernummer/>
+              <UnterVermittlernummer/>
+              <cIdent>6946:1181:1:3064</cIdent>
+              <nPrm>191.649949</nPrm>
+              <nPrmZw>191.64994900</nPrmZw>
+              <cPrmZw/>
+              <cB2C>0</cB2C>
+            </result>
+            <result diffgr:id="result16" msdata:rowOrder="8">
+              <nLaufzeit>1.00</nLaufzeit>
+              <nTrfWrkID>10265</nTrfWrkID>
+              <nPreTrfKmbID>217</nPreTrfKmbID>
+              <nNr>1</nNr>
+              <nGslID_01>3063</nGslID_01>
+              <cGsl>AXA Versicherung AG</cGsl>
+              <cTrfWrk>AXA WoG BOXFlex</cTrfWrk>
+              <sbbtrg>300</sbbtrg>
+              <nPrmNt>190.26</nPrmNt>
+              <nPrmNtOhnZhlWs>190.26</nPrmNtOhnZhlWs>
+              <cTrfLst>WG BF SB 300,WG BF F,WG BF ST/H,WG BF LW,WG BAK</cTrfLst>
+              <Highlight>0</Highlight>
+              <nPrm_j_lsv>221.35</nPrm_j_lsv>
+              <nPrm_h_lsv>0</nPrm_h_lsv>
+              <nPrm_v_lsv>0</nPrm_v_lsv>
+              <nPrm_m_lsv>0</nPrm_m_lsv>
+              <nPrm_j_rg>221.35</nPrm_j_rg>
+              <nPrm_h_rg>0</nPrm_h_rg>
+              <nPrm_v_rg>0</nPrm_v_rg>
+              <nPrm_m_rg>0</nPrm_m_rg>
+              <nPrmZw_j_lsv>221.35</nPrmZw_j_lsv>
+              <nPrmZw_h_lsv>0</nPrmZw_h_lsv>
+              <nPrmZw_v_lsv>0</nPrmZw_v_lsv>
+              <nPrmZw_m_lsv>0</nPrmZw_m_lsv>
+              <nPrmZw_j_rg>221.35</nPrmZw_j_rg>
+              <nPrmZw_h_rg>0</nPrmZw_h_rg>
+              <nPrmZw_v_Rg>0</nPrmZw_v_Rg>
+              <nPrmZw_m_rg>0</nPrmZw_m_rg>
+              <cPrmZw_j_lsv/>
+              <cPrmZw_h_lsv/>
+              <cPrmZw_v_lsv/>
+              <cPrmZw_m_lsv/>
+              <cPrmZw_j_rg/>
+              <cPrmZw_h_rg/>
+              <cPrmZw_v_rg/>
+              <cPrmZw_m_rg/>
+              <GRBFHRLSGKTWG>0.00</GRBFHRLSGKTWG>
+              <tarifart>WF</tarifart>
+              <vorversicherung>0</vorversicherung>
+              <vorschadenanzahl>0.00</vorschadenanzahl>
+              <VRTRGSABLF>5.00</VRTRGSABLF>
+              <VRDTRNGWG>12.00</VRDTRNGWG>
+              <ws_error>0</ws_error>
+              <pathVerarbeitungsbild>images\keinevd.gif</pathVerarbeitungsbild>
+              <rabatt>0</rabatt>
+              <antrag>0</antrag>
+              <antragemail/>
+              <cRahmenvertragsnr/>
+              <dVersBeginnZeit>2017-01-01T12:00:00+01:00</dVersBeginnZeit>
+              <dVersEndeZeit>2018-01-01T12:00:00+01:00</dVersEndeZeit>
+              <CourtageSatz>0</CourtageSatz>
+              <isNettoTarif>0</isNettoTarif>
+              <knz_show_rabatt>-1</knz_show_rabatt>
+              <status_for_suh_j_rg/>
+              <status_for_suh_h_rg/>
+              <status_for_suh_v_rg/>
+              <status_for_suh_m_rg/>
+              <status_for_suh_j_lsv/>
+              <status_for_suh_h_lsv/>
+              <status_for_suh_v_lsv/>
+              <status_for_suh_m_lsv/>
+              <status_for_fl3_j_rg/>
+              <status_for_fl3_h_rg/>
+              <status_for_fl3_v_rg/>
+              <status_for_fl3_m_rg/>
+              <status_for_fl3_j_lsv/>
+              <status_for_fl3_h_lsv/>
+              <status_for_fl3_v_lsv/>
+              <status_for_fl3_m_lsv/>
+              <highlight_prioritaet>10000</highlight_prioritaet>
+              <Vermittlernummer/>
+              <UnterVermittlernummer/>
+              <cIdent>10265:217:1:3063</cIdent>
+              <nPrm>221.35</nPrm>
+              <nPrmZw>221.35</nPrmZw>
+              <cPrmZw/>
+              <cB2C>0</cB2C>
+            </result>
+            <result diffgr:id="result25" msdata:rowOrder="13">
+              <nLaufzeit>1.00</nLaufzeit>
+              <nTrfWrkID>9156</nTrfWrkID>
+              <nPreTrfKmbID>264868</nPreTrfKmbID>
+              <nNr>1</nNr>
+              <nGslID_01>3087</nGslID_01>
+              <cGsl>Gothaer Versicherungs AG</cGsl>
+              <cTrfWrk>Gothaer WG Top EFH TR4</cTrfWrk>
+              <sbbtrg>500.00</sbbtrg>
+              <nPrmNt>200.871112</nPrmNt>
+              <nPrmNtOhnZhlWs>200.871112</nPrmNtOhnZhlWs>
+              <cTrfLst>WG BAK EFH Top&lt;20,WG VS Top EFH TR4,WG Alter 5-20,WG Top,WG Neubaurabatt,WG SB komp 500</cTrfLst>
+              <Highlight>0</Highlight>
+              <nPrm_j_lsv>233.693452</nPrm_j_lsv>
+              <nPrm_h_lsv>233.693452</nPrm_h_lsv>
+              <nPrm_v_lsv>233.693452</nPrm_v_lsv>
+              <nPrm_m_lsv>233.693452</nPrm_m_lsv>
+              <nPrm_j_rg>233.693452</nPrm_j_rg>
+              <nPrm_h_rg>233.693452</nPrm_h_rg>
+              <nPrm_v_rg>233.693452</nPrm_v_rg>
+              <nPrm_m_rg>233.693452</nPrm_m_rg>
+              <nPrmZw_j_lsv>233.69345200</nPrmZw_j_lsv>
+              <nPrmZw_h_lsv>116.84672600</nPrmZw_h_lsv>
+              <nPrmZw_v_lsv>58.42336300</nPrmZw_v_lsv>
+              <nPrmZw_m_lsv>19.474454333</nPrmZw_m_lsv>
+              <nPrmZw_j_rg>233.69345200</nPrmZw_j_rg>
+              <nPrmZw_h_rg>116.84672600</nPrmZw_h_rg>
+              <nPrmZw_v_Rg>58.42336300</nPrmZw_v_Rg>
+              <nPrmZw_m_rg>19.474454333</nPrmZw_m_rg>
+              <cPrmZw_j_lsv/>
+              <cPrmZw_h_lsv/>
+              <cPrmZw_v_lsv/>
+              <cPrmZw_m_lsv/>
+              <cPrmZw_j_rg/>
+              <cPrmZw_h_rg/>
+              <cPrmZw_v_rg/>
+              <cPrmZw_m_rg/>
+              <GRBFHRLSGKTWG>0.00</GRBFHRLSGKTWG>
+              <tarifart>Summe 1914</tarifart>
+              <vorversicherung>0</vorversicherung>
+              <vorschadenanzahl>3.00</vorschadenanzahl>
+              <VRDTRNGWG>12.00</VRDTRNGWG>
+              <ws_error>0</ws_error>
+              <pathVerarbeitungsdatei>0</pathVerarbeitungsdatei>
+              <pathVerarbeitungsbild>images\keinevd.gif</pathVerarbeitungsbild>
+              <rabatt>0</rabatt>
+              <antrag>0</antrag>
+              <antragemail/>
+              <cRahmenvertragsnr/>
+              <dVersBeginnZeit>2017-01-01T12:00:00+01:00</dVersBeginnZeit>
+              <dVersEndeZeit>2018-01-01T12:00:00+01:00</dVersEndeZeit>
+              <CourtageSatz>0</CourtageSatz>
+              <isNettoTarif>0</isNettoTarif>
+              <knz_show_rabatt>-1</knz_show_rabatt>
+              <status_for_suh_j_rg/>
+              <status_for_suh_h_rg/>
+              <status_for_suh_v_rg/>
+              <status_for_suh_m_rg/>
+              <status_for_suh_j_lsv/>
+              <status_for_suh_h_lsv/>
+              <status_for_suh_v_lsv/>
+              <status_for_suh_m_lsv/>
+              <status_for_fl3_j_rg/>
+              <status_for_fl3_h_rg/>
+              <status_for_fl3_v_rg/>
+              <status_for_fl3_m_rg/>
+              <status_for_fl3_j_lsv/>
+              <status_for_fl3_h_lsv/>
+              <status_for_fl3_v_lsv/>
+              <status_for_fl3_m_lsv/>
+              <highlight_prioritaet>10000</highlight_prioritaet>
+              <Vermittlernummer/>
+              <UnterVermittlernummer/>
+              <cIdent>9156:264868:1:3087</cIdent>
+              <nPrm>233.693452</nPrm>
+              <nPrmZw>233.69345200</nPrmZw>
+              <cPrmZw/>
+              <cB2C>0</cB2C>
+            </result>
+            <result diffgr:id="result1" msdata:rowOrder="0">
+              <nLaufzeit>1.00</nLaufzeit>
+              <nTrfWrkID>6945</nTrfWrkID>
+              <nPreTrfKmbID>1181</nPreTrfKmbID>
+              <nNr>1</nNr>
+              <nGslID_01>3064</nGslID_01>
+              <cGsl>Grundeigentümer Versicherung VVaG</cGsl>
+              <cTrfWrk>Grundeigentümer VGV Pro Domo Kompakt</cTrfWrk>
+              <sbbtrg>500.00</sbbtrg>
+              <nPrmNt>123.549496</nPrmNt>
+              <nPrmNtOhnZhlWs>123.549496</nPrmNtOhnZhlWs>
+              <cTrfLst>WG PDKomp St,WG PDKomp LW,WG PDKomp F,WG Vorvers. Neubau,WG SB,WG Gebäudealter</cTrfLst>
+              <Highlight>0</Highlight>
+              <nPrm_j_lsv>143.737485</nPrm_j_lsv>
+              <nPrm_h_lsv>143.737485</nPrm_h_lsv>
+              <nPrm_v_lsv>143.737485</nPrm_v_lsv>
+              <nPrm_m_lsv>143.737485</nPrm_m_lsv>
+              <nPrm_j_rg>143.737485</nPrm_j_rg>
+              <nPrm_h_rg>143.737485</nPrm_h_rg>
+              <nPrm_v_rg>143.737485</nPrm_v_rg>
+              <nPrm_m_rg>143.737485</nPrm_m_rg>
+              <nPrmZw_j_lsv>143.73748500</nPrmZw_j_lsv>
+              <nPrmZw_h_lsv>71.86874250</nPrmZw_h_lsv>
+              <nPrmZw_v_lsv>35.93437125</nPrmZw_v_lsv>
+              <nPrmZw_m_lsv>11.978123750</nPrmZw_m_lsv>
+              <nPrmZw_j_rg>143.73748500</nPrmZw_j_rg>
+              <nPrmZw_h_rg>71.86874250</nPrmZw_h_rg>
+              <nPrmZw_v_Rg>35.93437125</nPrmZw_v_Rg>
+              <nPrmZw_m_rg>11.978123750</nPrmZw_m_rg>
+              <cPrmZw_j_lsv/>
+              <cPrmZw_h_lsv/>
+              <cPrmZw_v_lsv/>
+              <cPrmZw_m_lsv/>
+              <cPrmZw_j_rg/>
+              <cPrmZw_h_rg/>
+              <cPrmZw_v_rg/>
+              <cPrmZw_m_rg/>
+              <GRBFHRLSGKTWG>0.00</GRBFHRLSGKTWG>
+              <tarifart>Summe 1914</tarifart>
+              <vorversicherung>0</vorversicherung>
+              <VRDTRNGWG>12.00</VRDTRNGWG>
+              <ws_error>0</ws_error>
+              <pathVerarbeitungsdatei>0</pathVerarbeitungsdatei>
+              <pathVerarbeitungsbild>images\keinevd.gif</pathVerarbeitungsbild>
+              <rabatt>0</rabatt>
+              <antrag>0</antrag>
+              <antragemail/>
+              <cRahmenvertragsnr/>
+              <dVersBeginnZeit>2017-01-01T12:00:00+01:00</dVersBeginnZeit>
+              <dVersEndeZeit>2018-01-01T12:00:00+01:00</dVersEndeZeit>
+              <CourtageSatz>0</CourtageSatz>
+              <isNettoTarif>0</isNettoTarif>
+              <knz_show_rabatt>-1</knz_show_rabatt>
+              <status_for_suh_j_rg/>
+              <status_for_suh_h_rg/>
+              <status_for_suh_v_rg/>
+              <status_for_suh_m_rg/>
+              <status_for_suh_j_lsv/>
+              <status_for_suh_h_lsv/>
+              <status_for_suh_v_lsv/>
+              <status_for_suh_m_lsv/>
+              <status_for_fl3_j_rg/>
+              <status_for_fl3_h_rg/>
+              <status_for_fl3_v_rg/>
+              <status_for_fl3_m_rg/>
+              <status_for_fl3_j_lsv/>
+              <status_for_fl3_h_lsv/>
+              <status_for_fl3_v_lsv/>
+              <status_for_fl3_m_lsv/>
+              <highlight_prioritaet>10000</highlight_prioritaet>
+              <Vermittlernummer/>
+              <UnterVermittlernummer/>
+              <cIdent>6945:1181:1:3064</cIdent>
+              <nPrm>143.737485</nPrm>
+              <nPrmZw>143.73748500</nPrmZw>
+              <cPrmZw/>
+              <cB2C>0</cB2C>
+            </result>
+            <zuers diffgr:id="zuers1" msdata:rowOrder="0">
+              <ZuersZone>0</ZuersZone>
+              <HinweisText/>
+            </zuers>
+          </NewDataSet>
+        </diffgr:diffgram>
+      </GetWgErgebnisResult>
+    </GetWgErgebnisResponse>
+  </soap:Body>
+</soap:Envelope>

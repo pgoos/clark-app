@@ -1,0 +1,29 @@
+version: '3.5'
+
+services:
+  insign:
+    image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/insign:latest
+    ports:
+      - "8080:8080"
+  activemq:
+    image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/docker-activemq:v1.0.0
+    ports:
+      - "8161:8161"
+  hermes:
+    image: 940354063714.dkr.ecr.eu-central-1.amazonaws.com/hermes:latest
+    ports:
+      - "8801:8801"
+      - "9901:9901"
+    environment:
+      WS_SHARED_SECRET:
+  postgres:
+    image: postgres:9.5.9
+    ports:
+     - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: clark
+      POSTGRES_PASSWORD: clark
+volumes:
+  postgres:

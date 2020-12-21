@@ -1,0 +1,4 @@
+.k8t @ClarkSource/cloudops
+.k8t/templates/web @ClarkSource/stream-growth
+.jenkins/k8t @ClarkSource/cloudops
+/client-externals/ @buschtoens

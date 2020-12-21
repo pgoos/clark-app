@@ -1,0 +1,16 @@
+# == Schema Information
+#
+# Table name: permissions
+#
+#  id         :integer          not null, primary key
+#  controller :string
+#  action     :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
+<% Permission.wanted_routes.map(&:requirements).map{ |route| route.slice(:controller, :action) }.uniq do |route| %>
+<%= route.values.join('_').gsub('/','_') %>:
+  controller: <%= route[:controller] %>
+  action: <%= route[:action] %>
+<% end %>

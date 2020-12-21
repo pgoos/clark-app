@@ -1,0 +1,81 @@
+{
+  "type": "object",
+  "properties": {
+    "mandate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "birthdate": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "house_number": {
+          "type": "string"
+        },
+        "zipcode": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "phone": {
+          "type": ["string", "nil"]
+        },
+        "state": {
+          "type": "string"
+        },
+        "acquired_by_clark": {
+          "type": "boolean"
+        },
+        "documents": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "content_type": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "date"
+              }
+            }
+          }
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

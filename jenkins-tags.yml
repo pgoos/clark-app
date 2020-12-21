@@ -1,0 +1,34 @@
+test_clark:
+  tags:
+    - "~@browser"
+    - "~@integration"
+    - "~@fail"
+    - "~@timeout"
+    - "~@slow"
+    - "~@clark_with_master_data"
+
+test_clark_integration:
+  tags:
+    - "@integration"
+    - "~@browser"
+    - "~@fail"
+    - "~@timeout"
+    - "~@slow"
+    - "~@clark_with_master_data"
+
+test_clark_browser:
+  browser: true
+  tags:
+    - "@browser"
+    - "~@timeout"
+    - "~@slow"
+    - "~@clark_with_master_data"
+
+test_clark_master_data:
+  master_data: true
+  tags:
+    - "~fail"
+    - "clark_with_master_data"
+    - "with_master_data"
+    - "~timeout"
+    - "~slow"

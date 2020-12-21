@@ -1,0 +1,79 @@
+version: '3.5'
+services:
+  postgres:
+    image: postgres:9.5.9
+    environment:
+      POSTGRES_PASSWORD: clark
+      POSTGRES_USER: clark
+      LANG: en_US.UTF8
+      LANGUAGE: en_US.UTF8
+      LC_ALL: en_US.UTF8
+
+  redis:
+    image: redis:latest
+
+  backend:
+    image: ${BACKEND_IMAGE}
+    entrypoint: bash -c
+    tty: true
+    environment:
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USERNAME: clark
+      POSTGRESQL_PASSWORD: clark
+      DOMAIN: 0.0.0.0:3000
+      SKIP_DEPENDENCIES: "true"
+      DROP_DB: "true"
+      INSIGN_BASE_URL: http://insign:8080/insign
+      INSIGN_HOST: insign
+      FRONTEND_HOST: frontend
+      WS_SHARED_SECRET: your_shared_secret
+      WKHTMLTOPDF: /usr/bin/wkhtmltopdf
+    volumes:
+      - clark-dev-sync:/app:nocopy
+      - ./storage/${APP_NAME}:/app/storage
+      - ./tmp/${APP_NAME}:/app/tmp
+      - ./public/uploads/${APP_NAME}:/app/public/uploads
+      - ./log/${APP_NAME}:/app/log
+      - gem_box:/gem_box
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+      - redis
+      - insign
+      - hermes
+
+  insign:
+    image: insign
+    ports:
+      - "8080:8080"
+
+  hermes:
+    image: hermes
+    ports:
+      - "8801:8801"
+      - "9901:9901"
+    environment:
+      WS_SHARED_SECRET: your_shared_secret
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    entrypoint: bash -c
+    environment:
+      RAILS_HOST: http://backend:3000
+      APP: $APP_NAME
+    volumes:
+      - clark-dev-sync:/app:nocopy
+    ports:
+      - 4200:4200
+    depends_on:
+      - postgres
+      - redis
+      - hermes
+      - insign
+
+volumes:
+  gem_box:
+  clark-dev-sync:
+    external: true

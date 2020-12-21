@@ -1,0 +1,180 @@
+# TODO: Refactor this map. Add comments and differentiate by logical parts
+404 url: /de/admin/companies/404
+accept terms and conditions: /de/app/mandate/accept-terms
+account edit: /de/(app/)?account/edit
+accounting cost centers: /de/admin/accounting_cost_centers
+accounting transactions upload: /de/admin/accounting_reports/new
+admin landing: /de/admin
+admin login: /de/admin/login
+admin settings: /de/admin/settings
+agb: /de/agb
+altersvorsorge:  /altersvorsorge/
+app login: /de/app/login
+appointment form: /de/app/retirement/appointment
+appointment_details: /de/admin/appointments/(:?\d+)
+appointments: /de/admin/appointments
+auslandskrankenversicherung:  /auslandskrankenversicherung
+berufsunfaehigkeitsversicherung: /berufsunfaehigkeitsversicherung
+betriebliche-altersvorsorge: /betriebliche-altersvorsorge
+clark 2 appointment rewards: /de/app/offers/request/awesome\?pending=appointment
+clark 2 offer rewards: /de/app/offers/request/awesome\.*
+clark 2 contract adding exploration: /de/app/contracts
+clark 2 contract details: /de/app/contracts/(:?\d+)
+clark 2 customer upgrade profile: /de/app/customer/upgrade/profile
+clark 2 customer upgrade signature: /de/app/customer/upgrade/signature
+clark 2 customer upgrade: /de/app/customer/upgrade
+clark 2 customer upgrade phone verification:  /de/app/customer/upgrade/phone-verification
+clark 2 offer: /de/app/offers/request?cv=2
+clark 2 offer upgrade profile: /de/app/offers/request/profile\.*
+clark 2 recommendations rewards: /de/app/recommendations/awesome
+clark 2 recommendations: /de/app/recommendations
+clark 2 registration: /de/app/customer/registration
+clark 2 retirement rewards: /de/app/retirement-temporary/awesome
+clark 2 retirement: /de/app/retirement
+clark 2 rewards: /de/app/contracts/awesome
+clark 2 select category for offer: /de/app/offers/request
+clark 2 select category: /de/app/contracts/create/category
+clark 2 select company: /de/app/contracts/create/company\?categoryIdent=
+clark 2 starting: /de/app/clark2
+clark 2 temporary retirement: /de/app/retirement-temporary
+clark 2 upgrade profile:  /de/app/customer/upgrade/profile
+cockpit preview: /de/app/mandate/cockpit-preview
+commission rates: /de/admin/commission_rates
+companies: /de/admin/companies
+company details: /de/admin/companies/(:?\d+)
+company selection: /de/app/mandate/targeting/company/(:?\d+)
+confirming: /de/app/mandate/confirming
+confirming home twenty four: /de/app/mandate/confirming
+coronavirus-versicherungsfragen: /coronavirus-versicherungsfragen
+create new document: /de/admin/products/(:?\d+)/documents/new
+create new offer: /de/admin/opportunities/(:?\d+)/offer/new
+data analyzing: /de/app/retirement-check/analyzing
+data self assertion: /de/app/retirement/wizards/state-pension/input-details
+datenschutz: /de/datenschutz
+demand check finished: /de/app/demandcheck/finished
+demand check intro: /de/app/demandcheck/intro
+demand check:  /de/app/demandcheck
+edit opportunity: /de/admin/opportunities/(:?\d+)/edit
+edit product: /de/admin/products/(:?\d+)/edit
+erstinformation: /de/erstinformation
+fairtravel: /de/signup-fairtravel
+finished: /de/app/mandate/finished
+freyr funnel: /de/app/freyr
+freyr success: /de/app/freyr/email-verification-success
+freyr phone verification: /de/app/freyr/phone-number\?migration_token=
+freyr phone verification token: /de/app/freyr/phone-verification\?migration_token=
+freyr password reset: /de/app/freyr/password-reset\?migration_token=
+freyr confetti: /de/app/freyr/awesome
+hausratversicherung: /hausratversicherung
+home: /
+how it works: /cms/so-funktionierts
+IBAN form: /de/app/mandate/iban
+impressum: /de/impressum
+input details: /de/app/retirement/wizards/new/input-details
+inquiries: /de/admin/inquiries
+third party contracts: /de/app/contracts/create\?shared=true
+third party contract selection: /de/app/contracts/create/category\?shared=true
+third party company selection: /de/app/contracts/create/company\?categoryIdent=
+inquiry details: /de/admin/inquiries/(:?\d+)
+invite friend: /de/app/invitations
+jobs: /de/jobs
+karriere: /careers
+kfz-versicherung: /kfz-versicherung
+krankenkassenwechsel: /krankenkassenwechsel
+login: /de/login
+manager inquiry details: /de/app/manager/inquiries/(:?\d+)
+manager product details: /de/app/manager/products/(:?\d+)
+manager: /de/app/manager
+mandate addresses: /de/admin/mandates/(:?\d+)/addresses
+mandate address edit: /de/admin/mandates/(:?\d+)/addresses/(:?\d+)/edit
+mandate business events: /de/admin/mandates/(:?\d+)/business_events
+mandate details: /de/admin/mandates/(:?\d+)
+mandate funnel status fairtravel: /de/app/mandate/partner/fairtravel
+mandate funnel status: /de/app/mandate/status
+mandate funnel status home twenty four: /de/app/mandate/status
+mandate new address: de/admin/mandates/(:?\d+)/addresses/new
+mandate register: /de/app/mandate/register
+mandates: /de/admin/mandates
+Miles and More form: /de/app/mandate/mam
+Miles and More: /de/app/mam
+milesandmore: /de/milesandmore
+mismatch_details: /de/admin/mismatched_payments/(:?\d+)/edit
+mismatched payments list: /de/admin/mismatched_payments
+new commission rates: /de/admin/commission_rates/new
+new mandate creation form: /de/admin/mandates/new
+new mandate form: /de/admin/mandate_invites/new
+new opportunity with prospect: /de/admin/opportunities/new_with_prospect
+new plan: /de/admin/plans/new
+new product: /de/admin/mandates/(:?\d+)/products/new
+new subcompany: /de/admin/subcompanies/new
+notfound: /cms/404
+notfoundredirect: /404
+Offer automation insurance detail: /de/admin/offer_automations/(:?\d+)
+offer automations: /de/admin/offer_automations
+offer checkout iban: /de/app/offer/(:?\d+)/iban
+# Checkout
+checkout profiling: /de/app/offers/(:?\d+)/checkout/(:?\d+)/profile
+checkout start date: /de/app/offers/(:?\d+)/checkout/(:?\d+)/start-date
+checkout payment details: /de/app/offers/(:?\d+)/checkout/(:?\d+)/payment-details
+checkout offer overview: /de/app/offers/(:?\d+)/checkout/(:?\d+)/summary
+checkout order confirmation: /de/app/offers/(:?\d+)/checkout/(:?\d+)/awesome
+
+offer view: /de/app/offers/(:?\d+)
+one thousand eight hundred twenty twodirekt: /de/1822direkt
+opportunities: /de/admin/opportunities
+opportunity details: /de/admin/opportunities/(:?\d+)
+opportunity offer: /de/admin/opportunities/(:?\d+)/offer
+out of scope: /de/app/retirement/out-of-scope
+Passwort vergessen overlay: /de/password/new
+Payback form: /de/app/mandate/payback
+payback: /cms/payback
+home24: /cms/home24
+home24 teilnahmebedingungen: /de/teilnahmebedingungen/home24
+payback_dy: /de/payback
+payment gap download: /de/admin/accounting_reports/new
+pflegeversicherung: /pflegeversicherung/
+pflegezusatzversicherung:  /pflegezusatzversicherung
+phone verification: /de/app/mandate/phone-verification
+plan filters: /de/admin/plan_filters
+plans: /de/admin/plans
+private krankenversicherung: /private-krankenversicherung
+private-altervorsorge:  /private-altervorsorge
+private-rentenversicherung: private-rentenversicherung
+privathaftpflicht: /haftpflichtversicherung
+product details: /de/app/manager/products/(:?\d+)
+product_details: /de/admin/products/(:?\d+)
+products: /de/admin/products
+profiling: /de/app/mandate/profiling
+Pensionscheck intro: /de/app/retirement-check
+questionnaire: /de/app/questionnaire/(:?.+)
+rechtsschutzversicherung: /rechtsschutzversicherung
+recommendations: /de/app/recommendations
+Rentencheck intro: /de/app/retirement-check
+rentencheck questionnaire: /de/app/retirement-check/questionnaire
+reset password: /de/app/customer/account/reset-password
+password reset: /de/app/customer/account/reset-password\?token=
+retirement cockpit: /de/app/retirement/cockpit
+retirement single recommendation: /de/app/retirement/categories/(:?.+)
+riester-rente: /riester-rente
+risikoleben: /risikolebensversicherung
+ruerup-rente: /ruerup-rente
+select categories: /de/app/mandate/targeting/select-categories
+##
+# https://clarkteam.atlassian.net/browse/JCLARK-61547
+# Change "select category" and all its occurrences to "request offer" or to
+# something more suitable.
+##
+select category: /de/app/offers/request
+single option offer form edit: /de/admin/opportunities/(:?\d+)/offer/single_column_new
+single recommendation: /de/app/manager/categories/(:?\d+)
+sterbegeldversicherung: /sterbegeldversicherung
+subcompanies: /de/admin/subcompanies
+success: /success
+targeting company selection: /de/app/mandate/targeting/select-companies
+targeting selection: /de/app/mandate/targeting/selection
+ueber-uns:  /cms/ueber-uns
+upload documents: /de/app/retirement/wizards/(new|state-pension)/upload-documents
+welcome: /de/app/welcome
+work items: /de/admin/work_items
+zahnzusatzversicherung: /zahnzusatzversicherung
+anzeigepflicht: /de/anzeigepflicht

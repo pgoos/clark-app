@@ -1,0 +1,340 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "name": "Partner.erstelleVertrag",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "PartnerID": {"$ref": "#/definitions/Plattform_ID"},
+        "VertragDaten": {"$ref": "#/definitions/CT_Vertrag"}
+      },
+      "required": [
+        "PartnerID",
+        "VertragDaten"
+      ]
+    },
+    {
+      "minItems": 2,
+      "maxItems": 2,
+      "type": "array",
+      "items": [
+        {"$ref": "#/definitions/Plattform_ID"},
+        {"$ref": "#/definitions/CT_Vertrag"}
+      ]
+    }
+  ],
+  "definitions": {
+    "ST_Zahlungsweise": {
+      "description": "Zahlungsweise gemäß GDV (BN-2003.02.11.22.49.57.328). GDV-Feldname ist 'Zahlungsweise'. Zurzeit wird von der Versicherungsplattform nur '1=jaehrlich', '2=halbjaehrlich', '4=vierteljaehrlich', '6=einmalig', '8=monatlich' unterstützt.",
+      "type": "string",
+      "title": "bipro:ST_Zahlungsweise",
+      "enum": [
+        "1",
+        "2",
+        "4",
+        "6",
+        "8"
+      ]
+    },
+    "ST_Sparte": {
+      "description": "Sparte gemäß GDV. Die Schlüssel orientieren sich nach dem BerVersVerzeichnis des BaFin. Zurzeit unterstützt die Plattform nur folgende Sparten. Beschreibung der Werte: '042=Arbeitsunfähigkeitsversicherung', '176=Bauleistung', '580=Bausparen', '294=Bündelprodukt', '172=Elektronikversicherung', '550=Fonds', '140=Gebäudeversicherung', '110=Glasversicherung', '040=Haftpflichtversicherung', '130=Hausratversicherung', '201=Kautionsversicherung', '050=Kfz-Versicherung', '200=Kreditversicherung', '010=Lebensversicherung', '171=Maschinenversicherung', '174=Montageversicherung', '020=Private Krankenversicherung', '070=Rechtschutzversicherung', '190=Transportversicherung', '030=Unfallversicherung', '684=Tierkrankenversicherung'.",
+      "type": "string",
+      "title": "bipro:ST_Sparte",
+      "enum": [
+        "042",
+        "176",
+        "580",
+        "294",
+        "172",
+        "550",
+        "140",
+        "110",
+        "040",
+        "130",
+        "201",
+        "050",
+        "200",
+        "010",
+        "171",
+        "174",
+        "020",
+        "070",
+        "190",
+        "030",
+        "684"
+      ]
+    },
+    "CT_Vertragsnummer": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Vertragsnummer",
+      "properties": {"Versicherungsscheinnummer": {"$ref": "#/definitions/ST_Versicherungsscheinnummer"}},
+      "required": ["Versicherungsscheinnummer"]
+    },
+    "ST_Datum": {
+      "pattern": "^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$",
+      "description": "Datum im Format <JJJJ>-<MM>-<TT> gemäß GDV (BN-2003.02.11.22.49.55.476). GDV-Feldname ist 'Datum'.",
+      "type": "string",
+      "title": "bipro:ST_Datum"
+    },
+    "ST_Unternehmensnummer": {
+      "minLength": 0,
+      "description": "Unternehmensnummer gemäß Unternehmensdatenbank der BaFin.",
+      "type": "string",
+      "title": "bipro:ST_Unternehmensnummer",
+      "maxLength": 17
+    },
+    "Plattform_Produkttyp": {
+      "description": "Produkttyp gemäß Versicherungsplattform. Der Typ wird für die Sparten Lebensversicherung, Haftpflichtversicherung und Private Krankenversichrung benutzt, um eine genaue Unterscheidung bei den Sparten treffen zu können.",
+      "type": "string",
+      "title": "plattform:Plattform_Produkttyp",
+      "enum": [
+        "Privathaftpflichtversicherung",
+        "Bauherrenhaftpflichtversicherung",
+        "Gewässerschadenhaftpflichtversicherung",
+        "Betriebshaftpflichtversicherung",
+        "Haus- und Grundbesitzerhaftpflichtversicherung",
+        "Vermögensschadenhaftpflichtversicherung",
+        "Hundehaftpflichtversicherung",
+        "Pferdehaftpflichtversicherung",
+        "Veranstaltungshaftpflichtversicherung",
+        "D&O-Versicherung",
+        "Jagdhaftpflichtversicherung",
+        "Basisrente Fonds",
+        "Basisrente Klassik",
+        "Dread Disease",
+        "Grundfähigkeit",
+        "Pflegerente",
+        "Privatrente Fonds",
+        "Privatrente Klassik",
+        "RLV",
+        "Riesterrente Fonds",
+        "Riesterrente Klassik",
+        "SBU",
+        "SEU",
+        "Sterbegeld",
+        "bAV Fonds",
+        "bAV Klassik",
+        "Krankenvollversicherung",
+        "Pflegepflichtversicherung",
+        "Tagegeldversicherung",
+        "Zahnzusatzversicherung",
+        "Pflegetagegeldversicherung",
+        "Pflegekostenversicherung",
+        "Krankenhaustagegeldversicherung",
+        "Reisekrankenversicherung",
+        "Stationäre Zusatzversicherung",
+        "Ergänzungstarif"
+      ]
+    },
+    "ST_Unternehmensnummernart": {
+      "description": "Zurzeit wird von der Versicherungsplattform nur 'BaFin=Identifikation gem. der Nummer der Bundesanstalt für Finanzdienstleistungsaufsicht' unterstützt. Ergänzend zu den BiPRO-Vorgaben unterstützt die Versicherungsplattform zusätzlich den Wert 'GPID=GesellschaftsplattformID'.",
+      "type": "string",
+      "title": "bipro:ST_Unternehmensnummernart",
+      "enum": [
+        "BaFin",
+        "GPID"
+      ]
+    },
+    "Plattform_ID": {
+      "maximum": 9223372036854775807,
+      "description": "Fachobjekt-ID gemäß Versicherungsplattform. Alle Fachobjekte der Versicherungsplattform werden mit einem numerischen Wert innerhalb dieses Wertebereichs eindeutig identifiziert. Bewusste Abweichung vom BiPRO-Standard (ST_ID), da die Versicherungsplattform ausschließlich mit numerischen IDs arbeitet.",
+      "type": "integer",
+      "title": "plattform:Plattform_ID",
+      "minimum": 0
+    },
+    "ST_Betrag": {
+      "multipleOf": 0.01,
+      "maximum": 9.99999999999E9,
+      "type": "number",
+      "title": "bipro:ST_Betrag",
+      "minimum": -9.99999999999E9
+    },
+    "Plattform_MonatTag": {
+      "pattern": "^[0-1][0-9]-[0-3][0-9]$",
+      "description": "Datum im Format <MM>-<TT> gemäß Versicherungsplattform.",
+      "type": "string",
+      "title": "plattform:Plattform_MonatTag"
+    },
+    "ST_DatumZeit": {
+      "pattern": "^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]$",
+      "description": "Datum mit Uhrzeit im Format <JJJJ>-<MM>-<TT>T<ST>:<MI>.",
+      "type": "string",
+      "title": "bipro:ST_DatumZeit"
+    },
+    "CT_Vertrag": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Vertrag",
+      "properties": {
+        "Abgangsdatum": {"$ref": "#/definitions/ST_Datum"},
+        "Vertragsnummer": {"$ref": "#/definitions/CT_Vertragsnummer"},
+        "Abgangsgrund": {"$ref": "#/definitions/ST_Abgangsgrund"},
+        "Hauptfaelligkeit": {"$ref": "#/definitions/Plattform_MonatTag"},
+        "Zahlungsweise": {"$ref": "#/definitions/ST_Zahlungsweise"},
+        "Vertragsstatus": {"$ref": "#/definitions/ST_Vertragsstatus"},
+        "Antragsdatum": {"$ref": "#/definitions/ST_Datum"},
+        "Verkaufsprodukt": {"$ref": "#/definitions/CT_Verkaufsprodukt"}
+      },
+      "required": [
+        "Vertragsnummer",
+        "Verkaufsprodukt",
+        "Zahlungsweise"
+      ]
+    },
+    "ST_Abgangsgrund": {
+      "description": "Abgangsgrund gemäß GDV (BN-2003.02.11.22.49.57.378). GDV-Feldname ist 'Abgangsgrund'. Beschreibung der Werte: '01=Kündigung VN zum Ablauf', '02=Kündigung VN im Schadenfall / allgemeine Differenzen', '03=Kündigung VN bei Beitragserhöhung / Tarifaktion', '04=Kündigung VU zum Ablauf', '05=Kündigung VU im Schadenfall', '06=Kündigung VU mangels Beitragszahlung (Folgebeitrag § 39 VVG)', '07=Kündigung Risikofortfall (Besitzerwechsel) / Umzug ins Ausland Versicherungsfähigkeit nicht gegeben / Berufsunfähigkeit / Totalschaden', '08=Ersatzversicherung / Umstellung Einzelversicherung in Gruppenversicherung Umstellung Gruppenversicherung in Einzelversicherung', '09=Storno zum Ablauf kurzfristiger Verträge', '10=Vertragsunterbrechung mit Reservierung (spez. KFZ)', '11=Vertragsunterbrechung ohne Reservierung (spez. KFZ)', '12=nicht in Kraft getretener Vertrag / Storno ab Beginn (§ 38 VVG)', '13=Kündigung des Erwerbers bei Besitzwechsel', '14=Tod Versicherungsnehmer', '15=Altersablauf / Endalter', '16=Kündigungsklausel gestrichen', '17=Erlebensfallauszahlung', '18=Abgang aus Rahmenvertrag', '19=Beitragsfreistellung vom VN beantragt', '20=Beitragsfreistellung gemäß § 39 VVG', '21=Vertragsende durch Tod der versicherten Person', '22=Vertragsende durch Ablauf (Vertrag)', '23=Vertragsende durch Heirat (mitversichertes Kind)', '24=Rückkauf', '25=Verfall', '26=Wechsel zu anderen Privaten-Krankenversicherungsunternehmen', '27=Wechsel zur Gesetzlichen-Krankenversicherung - pflichtig', '28=Wechsel zur Gesetzlichen-Krankenversicherung - freiwillig', '29=Vertragstrennung / -Zusammenlegung', '30=Agentur und/oder Geschäftsstellenwechsel', '31=Rücktritt (z.B. Verletzung der vorvertraglichen Anzeigepflicht / Anfechtung)', '32=Abgang nach Tarifwechsel', '99=sonstige Stornogründe'.",
+      "type": "string",
+      "title": "bipro:ST_Abgangsgrund",
+      "enum": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "99"
+      ]
+    },
+    "CT_Beitrag": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Beitrag",
+      "properties": {
+        "Betrag": {"$ref": "#/definitions/CT_Betrag"},
+        "ArtID": {"$ref": "#/definitions/STE_Beitrag"}
+      },
+      "required": [
+        "ArtID",
+        "Betrag"
+      ]
+    },
+    "CT_Betrag": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Betrag",
+      "properties": {
+        "Betrag": {"$ref": "#/definitions/ST_Betrag"},
+        "Waehrung": {"$ref": "#/definitions/ST_Waehrungsschluessel"}
+      },
+      "required": [
+        "Betrag",
+        "Waehrung"
+      ]
+    },
+    "CT_Zeitraum": {
+      "description": "",
+      "type": "object",
+      "title": "bipro:CT_Zeitraum",
+      "properties": {
+        "Beginn": {"$ref": "#/definitions/ST_DatumZeit"},
+        "Ende": {"$ref": "#/definitions/ST_DatumZeit"}
+      },
+      "required": ["Beginn"]
+    },
+    "CT_Unternehmen": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Unternehmen",
+      "properties": {
+        "Nummernart": {"$ref": "#/definitions/ST_Unternehmensnummernart"},
+        "Nummer": {"$ref": "#/definitions/ST_Unternehmensnummer"}
+      },
+      "required": ["Nummer"]
+    },
+    "ST_Waehrungsschluessel": {
+      "description": "Währungsschlüssel gemäß GDV (BN-2003.02.11.22.49.57.509). GDV-Feldname ist 'Waehrungsschluessel'. Beschreibung der Werte: 'EUR=Euro'.",
+      "type": "string",
+      "title": "bipro:ST_Waehrungsschluessel",
+      "enum": ["EUR"]
+    },
+    "ST_Versicherungsscheinnummer": {
+      "minLength": 0,
+      "description": "Versicherungsscheinnummer gemäß GDV (BN-2003.02.11.22.49.55.366). GDV-Feldname ist 'Versicherungsschein-Nummer'. Bewusste Abweichung der Feldlänge auf 30 Zeichen und Verzicht auf linksbündiges Auffüllen der Leerstellen.",
+      "type": "string",
+      "title": "bipro:ST_Versicherungsscheinnummer",
+      "maxLength": 30
+    },
+    "CT_Produkt": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Produkt",
+      "properties": {
+        "Sparte": {"$ref": "#/definitions/ST_Sparte"},
+        "Typ": {"$ref": "#/definitions/Plattform_Produkttyp"},
+        "Unternehmen": {"$ref": "#/definitions/CT_Unternehmen"}
+      },
+      "required": [
+        "Sparte",
+        "Unternehmen"
+      ]
+    },
+    "STE_Beitrag": {
+      "description": "Beschreibung der Werte: '01=Beitrag inkl. Steuer gemäß Klasse \"Steuer\"', '02=Nettobeitrag inklusive etwaigem Ratenzahlungszuschlag'.",
+      "type": "string",
+      "title": "bipro:STE_Beitrag",
+      "enum": [
+        "01",
+        "02"
+      ]
+    },
+    "CT_Verkaufsprodukt": {
+      "additionalProperties": false,
+      "type": "object",
+      "title": "bipro:CT_Verkaufsprodukt",
+      "properties": {
+        "Produkt": {"$ref": "#/definitions/CT_Produkt"},
+        "Beitrag": {"$ref": "#/definitions/CT_Beitrag"},
+        "Versicherungsdauer": {"$ref": "#/definitions/CT_Zeitraum"},
+        "Bezeichnung": {
+          "description": "Eine für Menschen verständliche Bezeichnung des Verkaufsproduktes.",
+          "type": "string",
+          "title": "bipro:ST_Text255",
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "Produkt",
+        "Beitrag",
+        "Versicherungsdauer"
+      ]
+    },
+    "ST_Vertragsstatus": {
+      "description": "Vertragsstatus gemäß GDV (BN-2003.02.11.22.49.57.348). GDV-Feldname ist 'Vertragsstatus'. Beschreibung der Werte: '1=lebend', '4=storniert', '5=ruhend / beitragsfrei'.",
+      "type": "string",
+      "title": "bipro:ST_Vertragsstatus",
+      "enum": [
+        "1",
+        "4",
+        "5"
+      ]
+    }
+  }
+}

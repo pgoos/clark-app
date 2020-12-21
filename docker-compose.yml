@@ -1,0 +1,58 @@
+version: '3.5'
+services:
+  application:
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        RAILS_ENV: production
+        APP: DEVK
+    ports:
+     - "8080:8080"
+    environment:
+      PORT: 8080
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_ENV: production
+      S3_BUCKET: optisure-staging
+      DEVISE_SECRET_KEY: pseudo
+      SECRET_KEY_BASE: hgijgkhoihoihiohj
+      AWS_REGION: eu-central-1
+      AWS_ACCESS_KEY: fffff
+      AWS_SECRET: iugfilugkllk
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRESQL_DATABASE: clark
+      POSTGRESQL_USERNAME: clark
+      POSTGRESQL_PASSWORD: clark
+      POSTGRESQL_HOST: postgres
+      FORCE_SSL: "false"
+      APP: DEVK
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    networks:
+      - backend
+      - frontend
+  postgres:
+    image: "postgres:9.5.9"
+    environment:
+      POSTGRES_USER: clark
+      POSTGRES_PASSWORD: clark
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - backend
+volumes:
+  postgres-data:
+    driver: local
+networks:
+  backend:
+    internal: true
+  frontend:
+    driver: bridge

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Execution expired",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*execution expired.*"
+  },
+  {
+    "name": "Net::ReadTimeout",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Net::ReadTimeout.*"
+  },
+  {
+    "name": "All product defects",
+    "matchedStatuses": ["failed"]
+  },
+  {
+    "name": "All test defects",
+    "matchedStatuses": ["broken"]
+  }
+]
